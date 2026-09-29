@@ -1,0 +1,254 @@
+[
+  {
+    "id": "column.public.symptom_entries.energy",
+    "label": "Add column \"energy\" to \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "energy",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"energy\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "energy"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"energy\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD COLUMN \"energy\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"energy\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "energy"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.symptom_entries.painIntensity",
+    "label": "Add column \"painIntensity\" to \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "painIntensity",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"painIntensity\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "painIntensity"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"painIntensity\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD COLUMN \"painIntensity\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"painIntensity\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "painIntensity"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.symptom_entries.sleep",
+    "label": "Add column \"sleep\" to \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "sleep",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"sleep\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "sleep"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"sleep\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD COLUMN \"sleep\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"sleep\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "symptom_entries",
+          "sleep"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.symptom_entries.symptom_entries_energy_check_ebb709b0",
+    "label": "Add check constraint \"symptom_entries_energy_check_ebb709b0\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "symptom_entries_energy_check_ebb709b0",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"symptom_entries_energy_check_ebb709b0\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_energy_check_ebb709b0",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"symptom_entries_energy_check_ebb709b0\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD CONSTRAINT \"symptom_entries_energy_check_ebb709b0\" CHECK (\"energy\" IN ('low', 'normal', 'high'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"symptom_entries_energy_check_ebb709b0\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_energy_check_ebb709b0",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.symptom_entries.symptom_entries_painIntensity_check_0b22c285",
+    "label": "Add check constraint \"symptom_entries_painIntensity_check_0b22c285\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "symptom_entries_painIntensity_check_0b22c285",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"symptom_entries_painIntensity_check_0b22c285\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_painIntensity_check_0b22c285",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"symptom_entries_painIntensity_check_0b22c285\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD CONSTRAINT \"symptom_entries_painIntensity_check_0b22c285\" CHECK (\"painIntensity\" IN ('none', 'light', 'moderate', 'strong', 'very_strong'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"symptom_entries_painIntensity_check_0b22c285\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_painIntensity_check_0b22c285",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.symptom_entries.symptom_entries_sleep_check_bd08b643",
+    "label": "Add check constraint \"symptom_entries_sleep_check_bd08b643\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "symptom_entries_sleep_check_bd08b643",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"symptom_entries_sleep_check_bd08b643\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_sleep_check_bd08b643",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"symptom_entries_sleep_check_bd08b643\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\" ADD CONSTRAINT \"symptom_entries_sleep_check_bd08b643\" CHECK (\"sleep\" IN ('bad', 'regular', 'good'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"symptom_entries_sleep_check_bd08b643\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_sleep_check_bd08b643",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ]
+  }
+]

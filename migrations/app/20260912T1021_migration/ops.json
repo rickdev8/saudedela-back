@@ -1,0 +1,337 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.health_statistics",
+    "label": "Create table \"health_statistics\"",
+    "summary": "Creates table \"health_statistics\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "health_statistics"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"health_statistics\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_statistics\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"health_statistics\"",
+        "sql": "CREATE TABLE \"public\".\"health_statistics\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"indicator\" text NOT NULL,\n  \"label\" text NOT NULL,\n  \"referenceDate\" timestamptz,\n  \"source\" text NOT NULL,\n  \"unit\" text,\n  \"value\" float8 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"health_statistics\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_statistics\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.knowledge_chunks",
+    "label": "Create table \"knowledge_chunks\"",
+    "summary": "Creates table \"knowledge_chunks\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "knowledge_chunks"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"knowledge_chunks\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"knowledge_chunks\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"knowledge_chunks\"",
+        "sql": "CREATE TABLE \"public\".\"knowledge_chunks\" (\n  \"content\" text NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"embedding\" vector(1536),\n  \"id\" text NOT NULL,\n  \"source\" text NOT NULL,\n  \"title\" text NOT NULL,\n  \"url\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"knowledge_chunks\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"knowledge_chunks\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.symptom_entries",
+    "label": "Create table \"symptom_entries\"",
+    "summary": "Creates table \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"symptom_entries\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"symptom_entries\"",
+        "sql": "CREATE TABLE \"public\".\"symptom_entries\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"date\" timestamptz NOT NULL,\n  \"flow\" text,\n  \"id\" text NOT NULL,\n  \"mood\" text,\n  \"notes\" text,\n  \"symptoms\" text[] NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"symptom_entries_flow_check_d9238e2d\" CHECK (\"flow\" IN ('none', 'light', 'medium', 'heavy')),\n  CONSTRAINT \"symptom_entries_symptoms_elem_not_null_730b5cb3\" CHECK (array_position(\"symptoms\", NULL) IS NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"symptom_entries\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.users",
+    "label": "Create table \"users\"",
+    "summary": "Creates table \"users\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"users\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"users\"",
+        "sql": "CREATE TABLE \"public\".\"users\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"password\" text NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"users\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.users.users_email_key",
+    "label": "Add unique constraint on \"users\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "users_email_key",
+        "table": "users"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"users_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_email_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"users_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"users\" ADD CONSTRAINT \"users_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"users_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "users_email_key",
+          "public",
+          "\"public\".\"users\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.symptom_entries.symptom_entries_userId_date_idx_b0e9c250",
+    "label": "Create index \"symptom_entries_userId_date_idx_b0e9c250\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "symptom_entries_userId_date_idx_b0e9c250",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"symptom_entries_userId_date_idx_b0e9c250\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries_userId_date_idx_b0e9c250\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"symptom_entries_userId_date_idx_b0e9c250\"",
+        "sql": "CREATE INDEX \"symptom_entries_userId_date_idx_b0e9c250\" ON \"public\".\"symptom_entries\" (\"userId\", \"date\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"symptom_entries_userId_date_idx_b0e9c250\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries_userId_date_idx_b0e9c250\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.symptom_entries.symptom_entries_userId_idx_a489d58a",
+    "label": "Create index \"symptom_entries_userId_idx_a489d58a\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "symptom_entries_userId_idx_a489d58a",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"symptom_entries_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"symptom_entries_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"symptom_entries_userId_idx_a489d58a\" ON \"public\".\"symptom_entries\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"symptom_entries_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"symptom_entries_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.symptom_entries.symptom_entries_userId_fkey",
+    "label": "Add foreign key \"symptom_entries_userId_fkey\" on \"symptom_entries\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "symptom_entries_userId_fkey",
+        "table": "symptom_entries"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"symptom_entries_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_userId_fkey",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"symptom_entries_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"symptom_entries\"\nADD CONSTRAINT \"symptom_entries_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"users\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"symptom_entries_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "symptom_entries_userId_fkey",
+          "public",
+          "\"public\".\"symptom_entries\""
+        ]
+      }
+    ]
+  }
+]

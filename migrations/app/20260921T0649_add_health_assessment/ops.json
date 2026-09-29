@@ -1,0 +1,161 @@
+[
+  {
+    "id": "table.health_assessments",
+    "label": "Create table \"health_assessments\"",
+    "summary": "Creates table \"health_assessments\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "health_assessments"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"health_assessments\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"health_assessments\"",
+        "sql": "CREATE TABLE \"public\".\"health_assessments\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"digestionSymptoms\" text[] NOT NULL,\n  \"energyLevel\" text,\n  \"gynecologicalSymptoms\" text[] NOT NULL,\n  \"id\" text NOT NULL,\n  \"medications\" text,\n  \"moodChanges\" text[] NOT NULL,\n  \"otherNotes\" text,\n  \"painLevel\" text,\n  \"physicalSymptoms\" text[] NOT NULL,\n  \"recentBodyChanges\" text,\n  \"skinHairChanges\" text[] NOT NULL,\n  \"sleepQuality\" text,\n  \"urinarySymptoms\" text[] NOT NULL,\n  \"userId\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"health_assessments_digestionSymptoms_elem_not_null_810e3000\" CHECK (array_position(\"digestionSymptoms\", NULL) IS NULL),\n  CONSTRAINT \"health_assessments_energyLevel_check_6e58d49d\" CHECK (\"energyLevel\" IN ('low', 'normal', 'high')),\n  CONSTRAINT \"health_assessments_gynecologicalSymptoms_elem_not_null_985f1da4\" CHECK (array_position(\"gynecologicalSymptoms\", NULL) IS NULL),\n  CONSTRAINT \"health_assessments_moodChanges_elem_not_null_16682199\" CHECK (array_position(\"moodChanges\", NULL) IS NULL),\n  CONSTRAINT \"health_assessments_painLevel_check_54dca2c8\" CHECK (\"painLevel\" IN ('none', 'light', 'moderate', 'strong', 'very_strong')),\n  CONSTRAINT \"health_assessments_physicalSymptoms_elem_not_null_02b013e7\" CHECK (array_position(\"physicalSymptoms\", NULL) IS NULL),\n  CONSTRAINT \"health_assessments_skinHairChanges_elem_not_null_44039bba\" CHECK (array_position(\"skinHairChanges\", NULL) IS NULL),\n  CONSTRAINT \"health_assessments_sleepQuality_check_1483a124\" CHECK (\"sleepQuality\" IN ('bad', 'regular', 'good')),\n  CONSTRAINT \"health_assessments_urinarySymptoms_elem_not_null_85910797\" CHECK (array_position(\"urinarySymptoms\", NULL) IS NULL)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"health_assessments\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.health_assessments.health_assessments_userId_createdAt_idx_f726f04a",
+    "label": "Create index \"health_assessments_userId_createdAt_idx_f726f04a\" on \"health_assessments\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "health_assessments_userId_createdAt_idx_f726f04a",
+        "table": "health_assessments"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"health_assessments_userId_createdAt_idx_f726f04a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments_userId_createdAt_idx_f726f04a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"health_assessments_userId_createdAt_idx_f726f04a\"",
+        "sql": "CREATE INDEX \"health_assessments_userId_createdAt_idx_f726f04a\" ON \"public\".\"health_assessments\" (\"userId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"health_assessments_userId_createdAt_idx_f726f04a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments_userId_createdAt_idx_f726f04a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.health_assessments.health_assessments_userId_idx_a489d58a",
+    "label": "Create index \"health_assessments_userId_idx_a489d58a\" on \"health_assessments\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "health_assessments_userId_idx_a489d58a",
+        "table": "health_assessments"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"health_assessments_userId_idx_a489d58a\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments_userId_idx_a489d58a\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"health_assessments_userId_idx_a489d58a\"",
+        "sql": "CREATE INDEX \"health_assessments_userId_idx_a489d58a\" ON \"public\".\"health_assessments\" (\"userId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"health_assessments_userId_idx_a489d58a\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"health_assessments_userId_idx_a489d58a\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.health_assessments.health_assessments_userId_fkey",
+    "label": "Add foreign key \"health_assessments_userId_fkey\" on \"health_assessments\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "health_assessments_userId_fkey",
+        "table": "health_assessments"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"health_assessments_userId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "health_assessments_userId_fkey",
+          "public",
+          "\"public\".\"health_assessments\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"health_assessments_userId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"health_assessments\"\nADD CONSTRAINT \"health_assessments_userId_fkey\"\nFOREIGN KEY (\"userId\")\nREFERENCES \"public\".\"users\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"health_assessments_userId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "health_assessments_userId_fkey",
+          "public",
+          "\"public\".\"health_assessments\""
+        ]
+      }
+    ]
+  }
+]

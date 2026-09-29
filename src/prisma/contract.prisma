@@ -1,0 +1,137 @@
+
+
+types {
+  Embedding1536 = pgvector.Vector(1536)
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAtString()
+
+ symptomEntries SymptomEntry[]
+ cyclePattern   CyclePattern?
+ healthAssessments HealthAssessment[]
+
+  @@map("users")
+}
+
+enum PainIntensity {
+  @@type("pg/text@1")
+  None       = "none"
+  Light      = "light"
+  Moderate   = "moderate"
+  Strong     = "strong"
+  VeryStrong = "very_strong"
+}
+
+enum EnergyLevel {
+  @@type("pg/text@1")
+  Low    = "low"
+  Normal = "normal"
+  High   = "high"
+}
+
+enum SleepQuality {
+  @@type("pg/text@1")
+  Bad     = "bad"
+  Regular = "regular"
+  Good    = "good"
+}
+
+enum FlowLevel {
+  @@type("pg/text@1")
+  None   = "none"
+  Light  = "light"
+  Medium = "medium"
+  Heavy  = "heavy"
+}
+
+model SymptomEntry {
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date          TimestamptzString
+  mood          String?
+  flow          FlowLevel?
+  painIntensity PainIntensity?
+  energy        EnergyLevel?
+  sleep         SleepQuality?
+  symptoms      String[]
+  notes         String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+  @@map("symptom_entries")
+}
+
+model HealthAssessment {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  physicalSymptoms      String[]
+  painLevel              PainIntensity?
+  energyLevel            EnergyLevel?
+  sleepQuality           SleepQuality?
+  digestionSymptoms      String[]
+  urinarySymptoms        String[]
+  gynecologicalSymptoms  String[]
+  moodChanges            String[]
+  skinHairChanges        String[]
+  recentBodyChanges      String?
+  medications            String?
+  otherNotes             String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("health_assessments")
+}
+
+model KnowledgeChunk {
+  id        String          @id @default(uuid())
+  source    String
+  title     String
+  url       String?
+  content   String
+  embedding Embedding1536 
+
+  createdAt DateTime @default(now())
+
+  @@map("knowledge_chunks")
+}
+
+model CyclePattern {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  durationDays Int
+  daysSelected Int[]
+  regularity   String
+
+  createdAt    DateTime @default(now())
+  updatedAt    temporal.updatedAtString()
+
+  @@map("cycle_patterns")
+}
+
+model HealthStatistic {
+  id            String    @id @default(uuid())
+  source        String
+  indicator     String
+  label         String
+  value         Float
+  unit          String?
+  referenceDate DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("health_statistics")
+}
