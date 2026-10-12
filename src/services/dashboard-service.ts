@@ -12,22 +12,29 @@ const flowLabels: Record<string, string> = {
   heavy: "Intenso",
 }
 
+const weekdayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
+
 function toDateKey(date: string | Date) {
   return new Date(date).toISOString().split("T")[0]
 }
 
-function getWeekdayLabel(date: string | Date) {
-  const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
-  return days[new Date(date).getDay()]
+function formatDayLabel(date: Date) {
+  return `${weekdayNames[date.getDay()]} ${date.getDate()}`
+}
+
+function entriesForMonth(allEntries: any[], ref: string) {
+  const [y, m] = ref.split("-").map(Number)
+  const start = new Date(y, m - 1, 1)
+  const end = new Date(y, m, 0, 23, 59, 59)
+  return allEntries.filter((e: any) => {
+    const d = new Date(e.date)
+    return d >= start && d <= end
+  })
 }
 
 export async function getDashboardData(userId: string, monthRef?: string) {
   const now = new Date()
-  const referenceMonth = monthRef ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
-
-  const [year, month] = referenceMonth.split("-").map(Number)
-  const monthStart = new Date(year, month - 1, 1)
-  const monthEnd = new Date(year, month, 0, 23, 59, 59)
+  const requestedMonth = monthRef ?? `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
 
   const allEntries = await db.orm.public.SymptomEntry
     .where({ userId })
@@ -35,18 +42,32 @@ export async function getDashboardData(userId: string, monthRef?: string) {
     .limit(200)
     .all()
 
-  const monthEntries = allEntries.filter((e: any) => {
-    const d = new Date(e.date)
-    return d >= monthStart && d <= monthEnd
-  })
+  let referenceMonth = requestedMonth
+  let monthEntries = entriesForMonth(allEntries, referenceMonth)
 
-  // ---------- 1. Humor ao longo dos últimos 7 dias ----------
-  const last7 = allEntries
-    .filter((e: any) => new Date(e.date) >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000))
+  // Se o mês pedido não tem registro (comum em base de teste ou se a usuária
+  // não registrou nada ainda este mês), usa o mês do registro mais recente.
+  if (monthEntries.length === 0 && allEntries.length > 0 && !monthRef) {
+    const mostRecentDate = new Date(allEntries[0].date)
+    referenceMonth = `${mostRecentDate.getFullYear()}-${String(mostRecentDate.getMonth() + 1).padStart(2, "0")}`
+    monthEntries = entriesForMonth(allEntries, referenceMonth)
+  }
+
+  // ---------- 1. Humor: últimos 7 dias corridos a partir de HOJE, com fallback pros 7 registros mais recentes ----------
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+  let moodSource = allEntries
+    .filter((e: any) => new Date(e.date) >= sevenDaysAgo)
     .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
-  const moodTimeline = last7.map((e: any) => ({
-    day: new Date(e.date).getDate().toString(),
+  if (moodSource.length === 0 && allEntries.length > 0) {
+    moodSource = [...allEntries]
+      .slice(0, 7)
+      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  }
+
+  const moodTimeline = moodSource.map((e: any) => ({
+    day: formatDayLabel(new Date(e.date)),
     mood: e.mood ?? "Normal",
   }))
 

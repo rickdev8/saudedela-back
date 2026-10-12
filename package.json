@@ -17,7 +17,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "postinstall": "prisma skills sync || exit 0",
-    "contract:emit": "prisma contract emit"
+    "contract:emit": "prisma contract emit",
+    "db:plan": "prisma migration plan",
+    "db:migrate": "prisma db migrate --advance-ref db",
+    "db:status": "prisma migration status"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

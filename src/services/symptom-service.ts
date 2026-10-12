@@ -18,6 +18,41 @@ export type SymptomEntry = {
   createdAt: string
 }
 
+const flowLabels: Record<string, string> = {
+  none: "Sem fluxo",
+  light: "Leve",
+  medium: "Moderado",
+  heavy: "Intenso",
+}
+
+const painLabels: Record<string, string> = {
+  none: "Nenhuma",
+  light: "Leve",
+  moderate: "Moderada",
+  strong: "Forte",
+  very_strong: "Muito forte",
+}
+
+const energyLabels: Record<string, string> = {
+  low: "Baixa",
+  normal: "Normal",
+  high: "Alta",
+}
+
+const sleepLabels: Record<string, string> = {
+  bad: "Ruim",
+  regular: "Regular",
+  good: "Bom",
+}
+
+// Minúsculas e sem acento, pra "colica" achar "Cólica"
+function normalize(text: string) {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+}
+
 export type SymptomEntryInput = Omit<SymptomEntry, "id" | "createdAt">
 
 export async function SymptomService(userId: string, data: SymptomEntryInput) {
@@ -80,7 +115,11 @@ export async function listSymptomEntries(userId: string, filters: ListEntriesFil
     .orderBy((m) => m.date.desc())
     .all()
 
-  const searchTerm = search?.toLowerCase().trim()
+
+
+  const searchTokens = search
+    ? normalize(search).split(/\s+/).filter(Boolean)
+    : []
 
   const filtered = allEntries.filter((entry: any) => {
     if (flow && entry.flow !== flow) return false
@@ -88,25 +127,24 @@ export async function listSymptomEntries(userId: string, filters: ListEntriesFil
     if (energy && entry.energy !== energy) return false
     if (sleep && entry.sleep !== sleep) return false
 
-    if (dateFrom) {
-      const entryDate = new Date(entry.date)
-      if (entryDate < new Date(dateFrom)) return false
-    }
-    if (dateTo) {
-      const entryDate = new Date(entry.date)
-      if (entryDate > new Date(dateTo)) return false
-    }
+    if (dateFrom && new Date(entry.date) < new Date(dateFrom)) return false
+    if (dateTo && new Date(entry.date) > new Date(dateTo)) return false
 
-    if (searchTerm) {
-      const haystack = [
-        entry.mood ?? "",
-        entry.notes ?? "",
-        ...(entry.symptoms ?? []),
-      ]
-        .join(" ")
-        .toLowerCase()
+    if (searchTokens.length > 0) {
+      const haystack = normalize(
+        [
+          entry.mood ?? "",
+          entry.notes ?? "",
+          entry.flow ? flowLabels[entry.flow] ?? entry.flow : "",
+          entry.painIntensity ? painLabels[entry.painIntensity] ?? entry.painIntensity : "",
+          entry.energy ? energyLabels[entry.energy] ?? entry.energy : "",
+          entry.sleep ? sleepLabels[entry.sleep] ?? entry.sleep : "",
+          ...(entry.symptoms ?? []),
+        ].join(" ")
+      )
 
-      if (!haystack.includes(searchTerm)) return false
+      // Todas as palavras digitadas precisam aparecer em algum campo
+      if (!searchTokens.every((token) => haystack.includes(token))) return false
     }
 
     return true
