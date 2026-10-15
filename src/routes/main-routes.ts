@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify"
 
 import { Cycle, GetCycle } from "../controllers/cycle-controller"
 import { ListSymptoms, Symptoms } from "../controllers/symptom-controller"
-import { Login, Register } from "../controllers/auth-controller"
+import { Login, Me, Register } from "../controllers/auth-controller"
 import { authGuard } from "../middlewares/auth-token"
 import { Insight } from "../controllers/insight-controller"
 import { DownloadReport } from "../controllers/report-controller"
@@ -21,4 +21,5 @@ export function authRoutes(app: FastifyInstance) {
   app.get("/avaliacao", { preHandler: authGuard }, ListAssessments)
   app.post("/avaliacao", { preHandler: authGuard }, CreateAssessment)
   app.get("/dashboard", { preHandler: authGuard }, Dashboard)
+  app.get("/auth/me", { preHandler: authGuard }, Me)
 }
