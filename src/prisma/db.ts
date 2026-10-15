@@ -10,9 +10,14 @@ import postgres from '@prisma/orm-postgres/runtime';
 import type { Contract } from './contract.d';
 import contractJson from './contract.json' with { type: 'json' };
 
+const url = process.env['DIRECT_URL'];
+if (!url) {
+  throw new Error('DIRECT_URL não está definida nas variáveis de ambiente');
+}
+
 export const db = postgres<Contract>({
   contractJson,
-  url: process.env['DIRECT_URL']!,
+  url,
   extensions: [pgvector],
 });
 
