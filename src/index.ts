@@ -9,7 +9,11 @@ const app = fastify({
   });
   
   await app.register(cors, {
-    origin: "*",
+    origin: [
+      "http://localhost:3000",
+      "https://saudedela-nellvuxyc-devrickpys-projects.vercel.app",
+    ],
+    credentials: true,
   });
 
 app.register(authRoutes)
