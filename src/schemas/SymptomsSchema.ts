@@ -1,6 +1,20 @@
 // schemas/SymptomsSchema.ts
 import { z } from "zod"
 
+onst flowMap = { "Sem fluxo": "none", "Leve": "light", "Moderado": "medium", "Intenso": "heavy" } as const
+const painMap = { "Nenhuma": "none", "Leve": "light", "Moderada": "moderate", "Forte": "strong", "Muito forte": "very_strong" } as const
+const energyMap = { "Baixa": "low", "Normal": "normal", "Alta": "high" } as const
+const sleepMap = { "Ruim": "bad", "Regular": "regular", "Bom": "good" } as const
+
+
+function labelEnum<T extends Record<string, string>>(map: T) {
+  return z
+    .enum(Object.keys(map) as [keyof T & string, ...(keyof T & string)[]])
+    .nullable()
+    .default(null)
+    .transform((label) => (label ? map[label] : null))
+}
+
 const flowLabelToValue = {
   "Sem fluxo": "none",
   "Leve": "light",
@@ -71,25 +85,10 @@ function optionField<T extends string>(
 
 export const createEntrySchema = z.object({
   date: z.string().min(1, "Informe a data"),
-  flow: optionField(flowLabelToValue, {
-    "Moderada": "medium",
-    "Média": "medium",
-    "Médio": "medium",
-  }),
-  painIntensity: optionField(painLabelToValue, {
-    "Moderado": "moderate",
-    "Média": "moderate",
-  }),
-  energy: optionField(energyLabelToValue, {
-    "Média": "normal",
-    "Moderada": "normal",
-    "Médio": "normal",
-  }),
-  sleep: optionField(sleepLabelToValue, {
-    "Boa": "good",
-    "Ótimo": "good",
-    "Péssimo": "bad",
-  }),
+  flow: labelEnum(flowMap),
+  painIntensity: labelEnum(painMap),
+  energy: labelEnum(energyMap),
+  sleep: labelEnum(sleepMap),
   mood: z.string().nullable().default(null),
   notes: z.string().nullable().default(null),
   symptoms: z.array(z.string()).default([]),
