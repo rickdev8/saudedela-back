@@ -1,12 +1,6 @@
 // schemas/SymptomsSchema.ts
 import { z } from "zod"
 
-onst flowMap = { "Sem fluxo": "none", "Leve": "light", "Moderado": "medium", "Intenso": "heavy" } as const
-const painMap = { "Nenhuma": "none", "Leve": "light", "Moderada": "moderate", "Forte": "strong", "Muito forte": "very_strong" } as const
-const energyMap = { "Baixa": "low", "Normal": "normal", "Alta": "high" } as const
-const sleepMap = { "Ruim": "bad", "Regular": "regular", "Bom": "good" } as const
-
-
 function labelEnum<T extends Record<string, string>>(map: T) {
   return z
     .enum(Object.keys(map) as [keyof T & string, ...(keyof T & string)[]])
