@@ -1,3 +1,4 @@
+// schemas/SymptomsSchema.ts
 import { z } from "zod"
 
 const flowLabelToValue = {
@@ -27,28 +28,66 @@ const sleepLabelToValue = {
   "Bom": "good",
 } as const
 
+// minúsculas, sem acento, sem espaços nas pontas
+function normalize(s: string) {
+  return s
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+}
+
+function optionField<T extends string>(
+  map: Record<string, T>,
+  aliases: Record<string, T> = {}
+) {
+  const lookup = new Map<string, T>()
+
+  for (const [label, value] of Object.entries(map)) {
+    lookup.set(normalize(label), value) // "Baixa" -> low
+    lookup.set(normalize(value), value) // "low"   -> low
+  }
+  for (const [alias, value] of Object.entries(aliases)) {
+    lookup.set(normalize(alias), value)
+  }
+
+  return z.any().transform((raw, ctx): T | null => {
+    if (raw === null || raw === undefined) return null
+    if (typeof raw !== "string" || raw.trim() === "") return null
+
+    const found = lookup.get(normalize(raw))
+    if (!found) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Valor inválido: "${raw}". Esperado: ${Object.keys(map).join(" | ")}`,
+      })
+      return z.NEVER
+    }
+    return found
+  })
+}
+
 export const createEntrySchema = z.object({
   date: z.string().min(1, "Informe a data"),
-  flow: z
-    .enum(["Sem fluxo", "Leve", "Moderado", "Intenso"])
-    .nullable()
-    .default(null)
-    .transform((label) => (label ? flowLabelToValue[label] : null)),
-  painIntensity: z
-    .enum(["Nenhuma", "Leve", "Moderada", "Forte", "Muito forte"])
-    .nullable()
-    .default(null)
-    .transform((label) => (label ? painLabelToValue[label] : null)),
-  energy: z
-    .enum(["Baixa", "Normal", "Alta"])
-    .nullable()
-    .default(null)
-    .transform((label) => (label ? energyLabelToValue[label] : null)),
-  sleep: z
-    .enum(["Ruim", "Regular", "Bom"])
-    .nullable()
-    .default(null)
-    .transform((label) => (label ? sleepLabelToValue[label] : null)),
+  flow: optionField(flowLabelToValue, {
+    "Moderada": "medium",
+    "Média": "medium",
+    "Médio": "medium",
+  }),
+  painIntensity: optionField(painLabelToValue, {
+    "Moderado": "moderate",
+    "Média": "moderate",
+  }),
+  energy: optionField(energyLabelToValue, {
+    "Média": "normal",
+    "Moderada": "normal",
+    "Médio": "normal",
+  }),
+  sleep: optionField(sleepLabelToValue, {
+    "Boa": "good",
+    "Ótimo": "good",
+    "Péssimo": "bad",
+  }),
   mood: z.string().nullable().default(null),
   notes: z.string().nullable().default(null),
   symptoms: z.array(z.string()).default([]),
@@ -58,7 +97,9 @@ export const listEntriesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   search: z.string().trim().optional(),
   flow: z.enum(["none", "light", "medium", "heavy"]).optional(),
-  painIntensity: z.enum(["none", "light", "moderate", "strong", "very_strong"]).optional(),
+  painIntensity: z
+    .enum(["none", "light", "moderate", "strong", "very_strong"])
+    .optional(),
   energy: z.enum(["low", "normal", "high"]).optional(),
   sleep: z.enum(["bad", "regular", "good"]).optional(),
   dateFrom: z.string().optional(),
