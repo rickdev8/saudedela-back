@@ -11,7 +11,7 @@ export async function Register(req: FastifyRequest, reply: FastifyReply) {
   }
 
   try {
-    const user = await createUser(parsed.data.name, parsed.data.email, parsed.data.password)
+    const user = await createUser(parsed.data.name, parsed.data.email, parsed.data.password, parsed.data.age)
     const token = signToken({ id: user.id, email: user.email })
     return reply.status(201).send({ user, token })
   } catch (err: any) {

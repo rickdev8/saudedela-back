@@ -12,6 +12,7 @@ const app = fastify({
     origin: [
       "http://localhost:3000",
       "https://saudedela-nellvuxyc-devrickpys-projects.vercel.app",
+      
     ],
     credentials: true,
   });

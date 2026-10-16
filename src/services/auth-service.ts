@@ -3,14 +3,14 @@ import { db } from "../prisma/db"
 
 const SALT_ROUNDS = 12
 
-export async function createUser(name: string, email: string, password: string) {
+export async function createUser(name: string, email: string, password: string, age: number) {
     try {
       const existing = await db.orm.public.User.where({ email }).first()
       if (existing) throw new Error("EMAIL_IN_USE")
   
       const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
   
-      const user = await db.orm.public.User.create({ name, email, password: passwordHash })
+      const user = await db.orm.public.User.create({ name, email, password: passwordHash, age:  age})
   
       return user
     } catch (err) {
