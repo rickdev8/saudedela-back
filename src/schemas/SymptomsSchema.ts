@@ -17,6 +17,8 @@ const painLabelToValue = {
 } as const
 
 const energyLabelToValue = {
+  "Abaixo do normal": "Below normal",
+  "Boa": "Good",
   "Baixa": "low",
   "Normal": "normal",
   "Alta": "high",
