@@ -1,9 +1,13 @@
-// schemas/SymptomsSchema.ts
 import { z } from "zod"
 
 function labelEnum<T extends Record<string, string>>(map: T) {
   return z
-    .enum(Object.keys(map) as [keyof T & string, ...(keyof T & string)[]])
+    .enum(
+      Object.keys(map) as [
+        keyof T & string,
+        ...(keyof T & string)[],
+      ]
+    )
     .nullable()
     .default(null)
     .transform((label) => (label ? map[label] : null))
@@ -38,7 +42,7 @@ const sleepLabelToValue = {
   "Bom": "good",
 } as const
 
-// minúsculas, sem acento, sem espaços nas pontas
+// Minúsculas, sem acentos e sem espaços nas pontas
 function normalize(s: string) {
   return s
     .trim()
@@ -54,35 +58,44 @@ function optionField<T extends string>(
   const lookup = new Map<string, T>()
 
   for (const [label, value] of Object.entries(map)) {
-    lookup.set(normalize(label), value) // "Baixa" -> low
-    lookup.set(normalize(value), value) // "low"   -> low
+    lookup.set(normalize(label), value)
+    lookup.set(normalize(value), value)
   }
+
   for (const [alias, value] of Object.entries(aliases)) {
     lookup.set(normalize(alias), value)
   }
 
   return z.any().transform((raw, ctx): T | null => {
     if (raw === null || raw === undefined) return null
-    if (typeof raw !== "string" || raw.trim() === "") return null
+
+    if (typeof raw !== "string" || raw.trim() === "") {
+      return null
+    }
 
     const found = lookup.get(normalize(raw))
-    if (!found) {
+
+    if (found === undefined) {
       ctx.addIssue({
         code: "custom",
         message: `Valor inválido: "${raw}". Esperado: ${Object.keys(map).join(" | ")}`,
       })
+
       return z.NEVER
     }
+
     return found
   })
 }
 
 export const createEntrySchema = z.object({
   date: z.string().min(1, "Informe a data"),
-  flow: labelEnum(flowMap),
-  painIntensity: labelEnum(painMap),
-  energy: labelEnum(energyMap),
-  sleep: labelEnum(sleepMap),
+
+  flow: labelEnum(flowLabelToValue),
+  painIntensity: labelEnum(painLabelToValue),
+  energy: labelEnum(energyLabelToValue),
+  sleep: labelEnum(sleepLabelToValue),
+
   mood: z.string().nullable().default(null),
   notes: z.string().nullable().default(null),
   symptoms: z.array(z.string()).default([]),
@@ -90,13 +103,25 @@ export const createEntrySchema = z.object({
 
 export const listEntriesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
+
   search: z.string().trim().optional(),
-  flow: z.enum(["none", "light", "medium", "heavy"]).optional(),
+
+  flow: z
+    .enum(["none", "light", "medium", "heavy"])
+    .optional(),
+
   painIntensity: z
     .enum(["none", "light", "moderate", "strong", "very_strong"])
     .optional(),
-  energy: z.enum(["low", "normal", "high"]).optional(),
-  sleep: z.enum(["bad", "regular", "good"]).optional(),
+
+  energy: z
+    .enum(["low", "normal", "high"])
+    .optional(),
+
+  sleep: z
+    .enum(["bad", "regular", "good"])
+    .optional(),
+
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),
 })
