@@ -189,7 +189,7 @@ export async function getInsight(userId: string) {
         return !isNaN(entryDate.getTime()) && entryDate >= since
     })
 
-    if (recentEntries.length < 5) {
+    if (recentEntries.length < 3) {
         return {
             status: "insufficient_data" as const,
             headlineParts: [{ text: "Continue registrando seus dias.", emphasis: false }],
