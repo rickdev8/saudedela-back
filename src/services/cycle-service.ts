@@ -1,93 +1,84 @@
-
-import { db } from "../prisma/db";
+import { db } from "../prisma/db"
 
 export type DataCycle = {
-  durationDays: number;
-  daysSelected: number[];
-  regularity: string;
-};
+  durationDays: number
+  daysSelected: number[]
+  regularity: string
+  cycleLengthDays: number
+}
 
-function calculateFertileWindow(durationDays: number) {
-  if (durationDays < 21 || durationDays > 45) {
-    return {
-      ovulationDay: null,
-      fertileDays: [],
-      estimated: true,
-      basedOn: "cycle-duration",
-      message: "Duração do ciclo inválida para esta estimativa.",
-    };
+function calculateFertileWindow(cycleLengthDays: number) {
+  if (
+    !Number.isInteger(cycleLengthDays) ||
+    cycleLengthDays < 21 ||
+    cycleLengthDays > 35
+  ) {
+    throw new Error(
+      "A duração do ciclo deve estar entre 21 e 35 dias."
+    )
   }
 
-  const ovulationDay = durationDays - 14;
-  const startDay = Math.max(1, ovulationDay - 5);
-  const endDay = Math.min(durationDays, ovulationDay + 1);
+  const ovulationDay = cycleLengthDays - 14
 
-  const fertileDays: number[] = [];
-
-  for (let day = startDay; day <= endDay; day++) {
-    fertileDays.push(day);
-  }
+  const fertileDays = Array.from(
+    { length: 7 },
+    (_, index) => ovulationDay - 5 + index
+  )
 
   return {
+    cycleLengthDays,
     ovulationDay,
     fertileDays,
     estimated: true,
     basedOn: "cycle-duration",
-  };
-}
-
-function formatCycle(pattern: {
-  durationDays: number;
-  daysSelected: number[];
-  regularity: string;
-}) {
-  return {
-    ...pattern,
-    fertileWindow: calculateFertileWindow(
-      pattern.durationDays,
-      pattern.daysSelected,
-    ),
-  };
+    message:
+      "Janela fértil estimada com base na duração informada do ciclo.",
+  }
 }
 
 export async function CycleService(
   userId: string,
-  data: DataCycle,
+  data: DataCycle
 ) {
+  if (
+    !Array.isArray(data.daysSelected) ||
+    data.daysSelected.some(
+      (day) =>
+        !Number.isInteger(day) ||
+        day < 1 ||
+        day > 31
+    )
+  ) {
+    throw new Error("Os dias selecionados são inválidos.")
+  }
+
+  const fertileWindow = calculateFertileWindow(
+    data.cycleLengthDays
+  )
+
   const existing = await db.orm.public.CyclePattern
     .where({ userId })
-    .first();
+    .first()
 
   const cycle = {
     userId,
-    durationDays: data.durationDays,
+    durationDays: data.daysSelected.length,
     daysSelected: data.daysSelected,
     regularity: data.regularity,
-  };
-
-  if (existing) {
-    await db.orm.public.CyclePattern
-      .where({ userId })
-      .update(cycle);
-
-    const updated = await getCyclePattern(userId);
-
-    return updated ? formatCycle(updated) : null;
+    fertileWindow,
   }
 
-  const created = await db.orm.public.CyclePattern.create(cycle);
+  if (existing) {
+    return await db.orm.public.CyclePattern
+      .where({ userId })
+      .update(cycle)
+  }
 
-  return formatCycle(created);
+  return await db.orm.public.CyclePattern.create(cycle)
 }
 
 export async function getCyclePattern(userId: string) {
-  const pattern = await db.orm.public.CyclePattern
+  return await db.orm.public.CyclePattern
     .where({ userId })
-    .first();
-
-  if (!pattern) {
-    return null;
-  }
-
-  return formatCycle(pattern);
+    .first()
 }
