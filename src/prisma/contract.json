@@ -124,6 +124,13 @@
                   "kind": "scalar"
                 }
               },
+              "cycleLengthDays": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "daysSelected": {
                 "many": {
                   "elementNullable": false
@@ -145,6 +152,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lastPeriodStart": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/date-temporal@1",
                   "kind": "scalar"
                 }
               },
@@ -193,6 +207,9 @@
                 "createdAt": {
                   "column": "createdAt"
                 },
+                "cycleLengthDays": {
+                  "column": "cycleLengthDays"
+                },
                 "daysSelected": {
                   "column": "daysSelected"
                 },
@@ -201,6 +218,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "lastPeriodStart": {
+                  "column": "lastPeriodStart"
                 },
                 "regularity": {
                   "column": "regularity"
@@ -925,6 +945,11 @@
                   },
                   "nullable": false
                 },
+                "cycleLengthDays": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
                 "daysSelected": {
                   "codecId": "pg/int4@1",
                   "dataType": "pg/int4",
@@ -942,6 +967,11 @@
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "lastPeriodStart": {
+                  "codecId": "pg/date-temporal@1",
+                  "dataType": "pg/date",
+                  "nullable": true
                 },
                 "regularity": {
                   "codecId": "pg/text@1",
@@ -1582,7 +1612,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "68630c1b40d33033232b2b7ac4125a3e52b3c466e56c437c7a88ea2a5098e357",
+    "storageHash": "6f42b31d8a5f45a3dc28d7442e931f8035dba6cf4a5d6c76d7646ab70023d5b6",
     "types": {
       "Embedding1536": {
         "codecId": "pg/vector@1",

@@ -113,6 +113,10 @@ model CyclePattern {
   userId       String   @unique
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  cycleLengthDays  Int?
+  lastPeriodStart  Date?
+
+
   durationDays Int
   daysSelected Int[]
   regularity   String

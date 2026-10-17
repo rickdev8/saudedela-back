@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'68630c1b40d33033232b2b7ac4125a3e52b3c466e56c437c7a88ea2a5098e357'>;
+  StorageHashBase<'6f42b31d8a5f45a3dc28d7442e931f8035dba6cf4a5d6c76d7646ab70023d5b6'>;
 export type ExecutionHash =
   ExecutionHashBase<'303a4f69e1fceb9e9260bd4fcfa0308f4cdd1a8b7560659c0455e0b5846e434b'>;
 export type ProfileHash =
@@ -242,9 +242,11 @@ export type FieldOutputTypes = {
   readonly public: {
     readonly CyclePattern: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
       readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
       readonly durationDays: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
       readonly regularity: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
@@ -313,9 +315,11 @@ export type FieldInputTypes = {
   readonly public: {
     readonly CyclePattern: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly cycleLengthDays: CodecTypes['pg/int4@1']['input'] | null;
       readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['input']>;
       readonly durationDays: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['input'] | null;
       readonly regularity: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
@@ -384,9 +388,11 @@ export type StorageColumnTypes = {
   readonly public: {
     readonly cycle_patterns: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
       readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
       readonly durationDays: CodecTypes['pg/int4@1']['output'];
       readonly id: CodecTypes['pg/text@1']['output'];
+      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
       readonly regularity: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
@@ -455,9 +461,11 @@ export type StorageColumnInputTypes = {
   readonly public: {
     readonly cycle_patterns: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly cycleLengthDays: CodecTypes['pg/int4@1']['input'] | null;
       readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['input']>;
       readonly durationDays: CodecTypes['pg/int4@1']['input'];
       readonly id: CodecTypes['pg/text@1']['input'];
+      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['input'] | null;
       readonly regularity: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
@@ -526,9 +534,11 @@ export type StorageColumnInputTypes = {
 export namespace Models {
   export type public_CyclePattern = {
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
     daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
     durationDays: CodecTypes['pg/int4@1']['output'];
     id: CodecTypes['pg/text@1']['output'];
+    lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
     regularity: CodecTypes['pg/text@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     userId: CodecTypes['pg/text@1']['output'];
@@ -643,6 +653,12 @@ type ContractBase = Omit<
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                   readonly many: false;
                 };
+                readonly cycleLengthDays: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly daysSelected: {
                   readonly dataType: 'pg/int4';
                   readonly codecId: 'pg/int4@1';
@@ -659,6 +675,12 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lastPeriodStart: {
+                  readonly dataType: 'pg/date';
+                  readonly codecId: 'pg/date-temporal@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly regularity: {
@@ -1156,6 +1178,10 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
+              readonly cycleLengthDays: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
               readonly daysSelected: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
@@ -1168,6 +1194,10 @@ type ContractBase = Omit<
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lastPeriodStart: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-temporal@1' };
               };
               readonly regularity: {
                 readonly nullable: false;
@@ -1201,9 +1231,11 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly createdAt: { readonly column: 'createdAt' };
+                readonly cycleLengthDays: { readonly column: 'cycleLengthDays' };
                 readonly daysSelected: { readonly column: 'daysSelected' };
                 readonly durationDays: { readonly column: 'durationDays' };
                 readonly id: { readonly column: 'id' };
+                readonly lastPeriodStart: { readonly column: 'lastPeriodStart' };
                 readonly regularity: { readonly column: 'regularity' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly userId: { readonly column: 'userId' };
