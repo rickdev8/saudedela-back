@@ -7,13 +7,18 @@ export type DataCycle = {
   regularity: string;
 };
 
-function calculateFertileWindow(
-  durationDays: number,
-  daysSelected: number[],
-) {
- 
-  const ovulationDay = durationDays - 14;
+function calculateFertileWindow(durationDays: number) {
+  if (durationDays < 21 || durationDays > 45) {
+    return {
+      ovulationDay: null,
+      fertileDays: [],
+      estimated: true,
+      basedOn: "cycle-duration",
+      message: "Duração do ciclo inválida para esta estimativa.",
+    };
+  }
 
+  const ovulationDay = durationDays - 14;
   const startDay = Math.max(1, ovulationDay - 5);
   const endDay = Math.min(durationDays, ovulationDay + 1);
 
@@ -28,8 +33,6 @@ function calculateFertileWindow(
     fertileDays,
     estimated: true,
     basedOn: "cycle-duration",
-  
-    daysSelected,
   };
 }
 
