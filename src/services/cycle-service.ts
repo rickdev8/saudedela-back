@@ -18,6 +18,22 @@ function parseStartDate(value?: string) {
   return date
 }
 
+// Usa Temporal.PlainDate se o runtime tiver Temporal; senão manda a string
+// "YYYY-MM-DD" (serve se a coluna for DateString no contrato).
+function toDbDate(value?: string) {
+  if (!value) return null
+  parseStartDate(value) // valida o formato
+  const T = (globalThis as any).Temporal
+  return T ? T.PlainDate.from(value) : value
+}
+
+// Aceita Date, Temporal.PlainDate ou string e devolve "YYYY-MM-DD"
+function toDateString(value: unknown): string | undefined {
+  if (!value) return undefined
+  if (value instanceof Date) return value.toISOString().slice(0, 10)
+  return String(value).slice(0, 10)
+}
+
 // dia 1 do ciclo = primeiro dia da menstruação
 function cycleDayToDate(start: Date, cycleDay: number) {
   return new Date(start.getTime() + (cycleDay - 1) * MS_PER_DAY)
@@ -79,9 +95,7 @@ function withFertility(pattern: any) {
     return { ...pattern, ovulation: null, fertilePeriod: null }
   }
 
-  const start = pattern.lastPeriodStart
-    ? new Date(pattern.lastPeriodStart).toISOString().slice(0, 10)
-    : undefined
+  const start = toDateString(pattern.lastPeriodStart)
 
   const fertility = calculateFertility(
     pattern.cycleLengthDays,
@@ -124,16 +138,15 @@ export async function CycleService(userId: string, data: DataCycle) {
     daysSelected: data.daysSelected,
     regularity: data.regularity,
     cycleLengthDays: data.cycleLengthDays,
-    lastPeriodStart: data.lastPeriodStart
-      ? new Date(`${data.lastPeriodStart}T00:00:00Z`)
-      : null,
+    lastPeriodStart: toDbDate(data.lastPeriodStart),
   }
 
-  const saved = existing
-    ? await db.orm.public.CyclePattern.where({ userId }).update(cycle)
-    : await db.orm.public.CyclePattern.create(cycle)
+  await (existing
+    ? db.orm.public.CyclePattern.where({ userId }).update(cycle)
+    : db.orm.public.CyclePattern.create(cycle))
 
-  return withFertility(saved)
+  // relê a linha para garantir que vem completa, independente do retorno do ORM
+  return getCyclePattern(userId)
 }
 
 export async function getCyclePattern(userId: string) {

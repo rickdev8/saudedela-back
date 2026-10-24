@@ -1,9 +1,156 @@
 type Message = { role: "user" | "assistant"; content: string }
 
-export async function askLLM(question: string, context: string[], history: Message[] = []): Promise<string> {
-  const contextText = context.map((c, i) => `[Fonte ${i + 1}]: ${c}`).join("\n\n")
+// ⚠️ Ajuste para os nomes reais das suas 5 variáveis de ambiente
+const KEY_ENV_NAMES = [
+  "GEMINI_API_KEY",
+  "GEMINI_API_KEY_2",
+  "GEMINI_API_KEY_3",
+  "GEMINI_API_KEY_4",
+  "GEMINI_API_KEY_5",
+]
 
-  const systemPrompt = `
+const GEMINI_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent"
+
+const REQUEST_TIMEOUT_MS = 30_000
+
+class GeminiHttpError extends Error {
+  constructor(public status: number, message: string) {
+    super(message)
+  }
+}
+
+type KeyEntry = { name: string; key: string }
+
+// Estado em memória (por processo): chave "descansando" e última que funcionou
+const cooldownUntil = new Map<string, number>()
+let lastGoodKeyName: string | null = null
+
+function loadKeys(): KeyEntry[] {
+  const seen = new Set<string>()
+  const entries: KeyEntry[] = []
+
+  for (const name of KEY_ENV_NAMES) {
+    const key = process.env[name]?.trim()
+    if (key && !seen.has(key)) {
+      seen.add(key)
+      entries.push({ name, key })
+    }
+  }
+
+  return entries
+}
+
+// Decide se vale tentar outra chave e por quanto tempo descansar a atual
+function classifyFailure(status: number, body: string) {
+  const text = body.toLowerCase()
+
+  // Quota esgotada (por minuto ou por dia)
+  if (status === 429) {
+    const daily = text.includes("perday") || text.includes("per day")
+    return { rotate: true, cooldownMs: daily ? 60 * 60_000 : 60_000 }
+  }
+
+  // Chave negada, revogada ou sem permissão
+  if (status === 401 || status === 403) {
+    return { rotate: true, cooldownMs: 60 * 60_000 }
+  }
+
+  // Chave inválida/expirada vem como 400
+  if (
+    status === 400 &&
+    (text.includes("api_key_invalid") ||
+      text.includes("api key not valid") ||
+      text.includes("api key expired"))
+  ) {
+    return { rotate: true, cooldownMs: 60 * 60_000 }
+  }
+
+  // Timeout e erros do servidor do Google
+  if (status === 408 || status >= 500) {
+    return { rotate: true, cooldownMs: 30_000 }
+  }
+
+  // Outros 400/404: o problema é o request, outra chave não resolve
+  return { rotate: false, cooldownMs: 0 }
+}
+
+async function callGemini(payload: unknown): Promise<any> {
+  const keys = loadKeys()
+
+  if (keys.length === 0) {
+    throw new Error("Nenhuma chave da Gemini está configurada")
+  }
+
+  // Começa pela última chave que funcionou, depois segue a ordem
+  const startAt = Math.max(
+    0,
+    keys.findIndex((k) => k.name === lastGoodKeyName)
+  )
+  const ordered = [...keys.slice(startAt), ...keys.slice(0, startAt)]
+
+  // Pula as que estão descansando; se todas estiverem, tenta todas mesmo assim
+  const now = Date.now()
+  const available = ordered.filter(
+    (k) => (cooldownUntil.get(k.name) ?? 0) <= now
+  )
+  const pool = available.length > 0 ? available : ordered
+
+  const failures: string[] = []
+
+  for (const { name, key } of pool) {
+    try {
+      const response = await fetch(GEMINI_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": key, // header em vez de ?key= na URL, para a chave não vazar em logs
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      })
+
+      if (response.ok) {
+        lastGoodKeyName = name
+        cooldownUntil.delete(name)
+        return await response.json()
+      }
+
+      const errorText = await response.text()
+      const verdict = classifyFailure(response.status, errorText)
+
+      console.error(`ERRO GEMINI (${name})`, {
+        status: response.status,
+        body: errorText.slice(0, 500),
+      })
+
+      if (!verdict.rotate) {
+        throw new GeminiHttpError(
+          response.status,
+          `Falha ao consultar IA: ${response.status} - ${errorText}`
+        )
+      }
+
+      cooldownUntil.set(name, Date.now() + verdict.cooldownMs)
+      failures.push(`${name}: ${response.status}`)
+    } catch (error) {
+      // Erro do request em si: não adianta trocar de chave
+      if (error instanceof GeminiHttpError) throw error
+
+      // Falha de rede ou timeout: descansa a chave um pouco e tenta a próxima
+      console.error(`ERRO DE REDE GEMINI (${name})`, error)
+      cooldownUntil.set(name, Date.now() + 15_000)
+      failures.push(`${name}: rede/timeout`)
+    }
+  }
+
+  throw new Error(
+    `Todas as chaves da Gemini falharam (${failures.join(", ")})`
+  )
+}
+
+function buildSystemPrompt(contextText: string) {
+  return `
   Você é o assistente educativo da plataforma SaúdeDela, especializada em educação e acompanhamento da saúde da mulher.
   
   Sua função é responder às usuárias utilizando EXCLUSIVAMENTE as informações presentes no contexto recuperado pela base de conhecimento do SaúdeDela (RAG/embeddings).
@@ -133,7 +280,7 @@ export async function askLLM(question: string, context: string[], history: Messa
   Se não houver informação suficiente:
   
   "Não encontrei informação suficiente na base de conhecimento do SaúdeDela para responder isso com segurança."
-  i
+  
   Se a pergunta estiver ambígua, você pode pedir esclarecimento.
   
   Exemplo:
@@ -265,64 +412,43 @@ export async function askLLM(question: string, context: string[], history: Messa
   "Não encontrei essa informação na base de conhecimento do SaúdeDela."
   
   Essa regra deve ser seguida mesmo quando você já souber a resposta através do seu conhecimento geral.
-  `;
+  `
+}
+
+export async function askLLM(
+  question: string,
+  context: string[],
+  history: Message[] = []
+): Promise<string> {
+  const contextText = context
+    .map((c, i) => `[Fonte ${i + 1}]: ${c}`)
+    .join("\n\n")
+
+  const systemPrompt = buildSystemPrompt(contextText)
 
   const historyContents = history.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }))
 
-  const apiKey = process.env.GEMINI_API_KEY
-
-  if (!apiKey) {
-    throw new Error("GEMINI_API_KEY não está configurada")
-  }
-
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  const data = await callGemini({
+    systemInstruction: {
+      parts: [{ text: systemPrompt }],
+    },
+    contents: [
+      ...historyContents,
+      {
+        role: "user",
+        parts: [{ text: question }],
       },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        contents: [
-          ...historyContents,
-          {
-            role: "user",
-            parts: [{ text: question }],
-          },
-        ],
-        generationConfig: {
-          thinkingConfig: {
-            thinkingLevel: "low",
-          },
-          maxOutputTokens: 1500,
-        },
-      }),
-    }
-  )
-
-  if (!response.ok) {
-    const errorText = await response.text()
-
-    console.error("ERRO GEMINI:", {
-      status: response.status,
-      statusText: response.statusText,
-      body: errorText,
-    })
-
-    throw new Error(
-      `Falha ao consultar IA: ${response.status} - ${errorText}`
-    )
-  }
-
-  const data = await response.json()
-
-  console.log("RESPOSTA GEMINI:", JSON.stringify(data, null, 2))
+    ],
+    generationConfig: {
+      thinkingConfig: {
+        thinkingLevel: "low",
+      },
+      maxOutputTokens: 1500,
+    },
+  })
 
   const candidate = data.candidates?.[0]
 
@@ -331,9 +457,7 @@ export async function askLLM(question: string, context: string[], history: Messa
   }
 
   if (candidate.finishReason === "MAX_TOKENS") {
-    console.warn(
-      "⚠️ Resposta do assistente foi cortada por limite de tokens"
-    )
+    console.warn("⚠️ Resposta do assistente foi cortada por limite de tokens")
   }
 
   const text = candidate.content?.parts
