@@ -7,6 +7,7 @@ const LOOKBACK_DAYS = 90
 const HIGH_PAIN_THRESHOLD = 3
 const HEAVY_FLOW_THRESHOLD = 5
 const SYMPTOM_FREQUENCY_THRESHOLD = 3
+const TIME_ZONE = "America/Bahia"
 
 export type HeadlinePart = { text: string; emphasis: boolean }
 
@@ -16,12 +17,12 @@ export type PatternFlag = {
     headlineParts: HeadlinePart[]
 }
 
-// CORREÇÃO: Adicionado ' | null' aos campos opcionais para respeitar o retorno da base de dados.
 export interface SymptomEntry {
     id?: string | null
     userId: string
     date?: string | Date | null
     createdAt?: string | Date | null
+    updatedAt?: string | Date | null
     painLevel?: "none" | "light" | "moderate" | "strong" | "very_strong" | string | null
     painIntensity?: "none" | "light" | "moderate" | "strong" | "very_strong" | string | null
     flow?: "none" | "light" | "medium" | "heavy" | string | null
@@ -34,17 +35,18 @@ export interface SymptomEntry {
     moodChanges?: any
 }
 
-// Helper para converter strings JSON do banco (ex: '["Cansaço"]') em arrays reais
+// ---------- helpers ----------
+
 function parseJsonArray(val: any): string[] {
     if (!val) return []
-    if (Array.isArray(val)) return val.filter(i => typeof i === "string")
-    
+    if (Array.isArray(val)) return val.filter((i) => typeof i === "string")
+
     if (typeof val === "string") {
         const trimmed = val.trim()
         if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
             try {
                 const parsed = JSON.parse(trimmed)
-                if (Array.isArray(parsed)) return parsed.filter(i => typeof i === "string")
+                if (Array.isArray(parsed)) return parsed.filter((i) => typeof i === "string")
             } catch {
                 return []
             }
@@ -54,7 +56,6 @@ function parseJsonArray(val: any): string[] {
     return []
 }
 
-// Extrai e unifica sintomas de todas as colunas possíveis
 function extractAllSymptoms(entry: SymptomEntry): string[] {
     const allSymptoms: string[] = []
     const symptomFields: (keyof SymptomEntry)[] = [
@@ -68,61 +69,101 @@ function extractAllSymptoms(entry: SymptomEntry): string[] {
     ]
 
     for (const field of symptomFields) {
-        const parsedArray = parseJsonArray(entry[field])
-        for (const item of parsedArray) {
+        for (const item of parseJsonArray(entry[field])) {
             allSymptoms.push(item.trim())
         }
     }
     return allSymptoms
 }
 
-// Extrai a data limpa (YYYY-MM-DD) para agrupar registros do mesmo dia
+// Dia no fuso da usuária (YYYY-MM-DD), não em UTC
 function getDayKey(dateValue: any): string {
     if (!dateValue) return ""
+    const d = new Date(dateValue)
+    if (isNaN(d.getTime())) return ""
+    return d.toLocaleDateString("sv-SE", { timeZone: TIME_ZONE })
+}
+
+// Aceita Date, string ou Temporal
+function toMillis(v: any): number {
+    if (!v) return 0
+    if (typeof v === "object" && "epochMilliseconds" in v) return Number(v.epochMilliseconds)
+    const t = new Date(v).getTime()
+    return isNaN(t) ? 0 : t
+}
+
+// Muda quando um registro é criado, editado ou apagado
+function buildSignature(entries: SymptomEntry[]): string {
+    let latest = 0
+    for (const e of entries) {
+        const t = Math.max(toMillis(e.updatedAt), toMillis(e.createdAt))
+        if (t > latest) latest = t
+    }
+    return `${entries.length}:${latest}`
+}
+
+// ---------- cache (tabela insight_cache) ----------
+
+async function loadCachedInsight(userId: string, signature: string) {
     try {
-        const d = new Date(dateValue)
-        return !isNaN(d.getTime()) ? d.toISOString().split("T")[0] : ""
-    } catch {
-        return ""
+        const rows = await (db.orm.public as any).InsightCache.where({ userId }).all()
+        const row = rows?.[0]
+        if (!row || row.signature !== signature) return null
+        return JSON.parse(row.payload)
+    } catch (err) {
+        console.error("INSIGHT CACHE (leitura falhou):", err)
+        return null
     }
 }
+
+async function saveCachedInsight(userId: string, signature: string, payload: unknown) {
+    const data = { userId, signature, payload: JSON.stringify(payload) }
+    const table = (db.orm.public as any).InsightCache
+
+    try {
+        // TODO: confirmar a sintaxe de escrita desse ORM (create/update)
+        const existing = await table.where({ userId }).all()
+        if (existing?.length) {
+            await table.where({ userId }).update({ signature: data.signature, payload: data.payload })
+        } else {
+            await table.create(data)
+        }
+    } catch (err) {
+        console.error("INSIGHT CACHE (escrita falhou):", err)
+    }
+}
+
+// ---------- padrões ----------
 
 function detectPatterns(entries: SymptomEntry[]): PatternFlag[] {
     const flags: PatternFlag[] = []
 
-    // Mapas baseados em DIAS ÚNICOS, não apenas no número de registros
     const daysWithStrongPain = new Set<string>()
     const daysWithHeavyFlow = new Set<string>()
     const symptomDays = new Map<string, Set<string>>()
+    const displayNames = new Map<string, string>()
 
     for (const entry of entries) {
         const dayKey = getDayKey(entry.date ?? entry.createdAt)
         if (!dayKey) continue
 
-        // 1. Dor forte
         const level = entry.painLevel ?? entry.painIntensity
         if (level === "strong" || level === "very_strong") {
             daysWithStrongPain.add(dayKey)
         }
 
-        // 2. Fluxo intenso
         if (entry.flow === "heavy") {
             daysWithHeavyFlow.add(dayKey)
         }
 
-        // 3. Frequência de sintomas
         const daySymptoms = Array.from(new Set(extractAllSymptoms(entry)))
         for (const symptom of daySymptoms) {
-            // Normalizar para agrupar "Cansaço" com "cansaço"
-            const key = symptom.toLowerCase() 
-            if (!symptomDays.has(key)) {
-                symptomDays.set(key, new Set())
-            }
+            const key = symptom.toLowerCase()
+            if (!displayNames.has(key)) displayNames.set(key, symptom)
+            if (!symptomDays.has(key)) symptomDays.set(key, new Set())
             symptomDays.get(key)!.add(dayKey)
         }
     }
-
-    // --- Avaliações dos Limites (Thresholds) ---
 
     if (daysWithStrongPain.size >= HIGH_PAIN_THRESHOLD) {
         flags.push({
@@ -153,9 +194,7 @@ function detectPatterns(entries: SymptomEntry[]): PatternFlag[] {
 
     for (const [symptomKey, daysSet] of symptomDays.entries()) {
         if (daysSet.size > topDaysCount) {
-            // Para exibição, procuramos o nome original com formatação correta
-            const originalName = extractAllSymptoms(entries[0] || {}).find(s => s.toLowerCase() === symptomKey) || symptomKey
-            topSymptomName = originalName
+            topSymptomName = displayNames.get(symptomKey) ?? symptomKey
             topDaysCount = daysSet.size
         }
     }
@@ -174,6 +213,8 @@ function detectPatterns(entries: SymptomEntry[]): PatternFlag[] {
 
     return flags
 }
+
+// ---------- insight ----------
 
 export async function getInsight(userId: string) {
     const since = new Date()
@@ -209,6 +250,11 @@ export async function getInsight(userId: string) {
         }
     }
 
+    // Só o caminho caro (embedding + LLM) passa pelo cache
+    const signature = buildSignature(entries)
+    const cached = await loadCachedInsight(userId, signature)
+    if (cached) return cached
+
     const primaryFlag = flags[0]
     const flagSummary = flags.map((f) => f.description).join(" ")
 
@@ -241,10 +287,14 @@ export async function getInsight(userId: string) {
         relevantChunks.map((c: any) => c.content)
     )
 
-    return {
+    const result = {
         status: "attention" as const,
         headlineParts: primaryFlag.headlineParts,
         description: typeof answer === "string" ? answer.trim() : answer,
         sources: dedupeSources(relevantChunks),
     }
+
+    await saveCachedInsight(userId, signature, result)
+
+    return result
 }

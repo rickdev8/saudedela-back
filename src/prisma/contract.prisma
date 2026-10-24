@@ -13,9 +13,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt temporal.updatedAtString()
 
- symptomEntries SymptomEntry[]
- cyclePattern   CyclePattern?
- healthAssessments HealthAssessment[]
+  symptomEntries    SymptomEntry[]
+  cyclePattern      CyclePattern?
+  healthAssessments HealthAssessment[]
+  insightCache      InsightCache?
 
   @@map("users")
 }
@@ -66,9 +67,24 @@ model SymptomEntry {
   notes         String?
 
   createdAt DateTime @default(now())
+  updatedAt temporal.updatedAtString()
 
   @@index([userId, date])
   @@map("symptom_entries")
+}
+
+model InsightCache {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  signature String
+  payload   String
+
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAtString()
+
+  @@map("insight_cache")
 }
 
 model HealthAssessment {
@@ -77,17 +93,17 @@ model HealthAssessment {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   physicalSymptoms      String[]
-  painLevel              PainIntensity?
-  energyLevel            EnergyLevel?
-  sleepQuality           SleepQuality?
-  digestionSymptoms      String[]
-  urinarySymptoms        String[]
-  gynecologicalSymptoms  String[]
-  moodChanges            String[]
-  skinHairChanges        String[]
-  recentBodyChanges      String?
-  medications            String?
-  otherNotes             String?
+  painLevel             PainIntensity?
+  energyLevel           EnergyLevel?
+  sleepQuality          SleepQuality?
+  digestionSymptoms     String[]
+  urinarySymptoms       String[]
+  gynecologicalSymptoms String[]
+  moodChanges           String[]
+  skinHairChanges       String[]
+  recentBodyChanges     String?
+  medications           String?
+  otherNotes            String?
 
   createdAt DateTime @default(now())
 
@@ -96,12 +112,12 @@ model HealthAssessment {
 }
 
 model KnowledgeChunk {
-  id        String          @id @default(uuid())
+  id        String        @id @default(uuid())
   source    String
   title     String
   url       String?
   content   String
-  embedding Embedding1536 
+  embedding Embedding1536
 
   createdAt DateTime @default(now())
 
@@ -109,20 +125,19 @@ model KnowledgeChunk {
 }
 
 model CyclePattern {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  cycleLengthDays  Int?
-  lastPeriodStart  Date?
-
+  cycleLengthDays Int?
+  lastPeriodStart Date?
 
   durationDays Int
   daysSelected Int[]
   regularity   String
 
-  createdAt    DateTime @default(now())
-  updatedAt    temporal.updatedAtString()
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAtString()
 
   @@map("cycle_patterns")
 }
