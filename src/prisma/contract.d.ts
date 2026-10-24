@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6f42b31d8a5f45a3dc28d7442e931f8035dba6cf4a5d6c76d7646ab70023d5b6'>;
+  StorageHashBase<'27afc810017204a3b095f4185b4a94a6945393c83833d7d9270f161894aebe3e'>;
 export type ExecutionHash =
-  ExecutionHashBase<'303a4f69e1fceb9e9260bd4fcfa0308f4cdd1a8b7560659c0455e0b5846e434b'>;
+  ExecutionHashBase<'69e699e1a3daf44c75b2a8f662c347de7245f07a3f899077257334c0ea5c99f1'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -278,6 +278,14 @@ export type FieldOutputTypes = {
       readonly unit: CodecTypes['pg/text@1']['output'] | null;
       readonly value: CodecTypes['pg/float8@1']['output'];
     };
+    readonly InsightCache: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly payload: CodecTypes['pg/text@1']['output'];
+      readonly signature: CodecTypes['pg/text@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly userId: CodecTypes['pg/text@1']['output'];
+    };
     readonly KnowledgeChunk: {
       readonly content: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -298,6 +306,7 @@ export type FieldOutputTypes = {
       readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
       readonly sleep: 'bad' | 'regular' | 'good' | null;
       readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
     readonly User: {
@@ -351,6 +360,14 @@ export type FieldInputTypes = {
       readonly unit: CodecTypes['pg/text@1']['input'] | null;
       readonly value: CodecTypes['pg/float8@1']['input'];
     };
+    readonly InsightCache: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly payload: CodecTypes['pg/text@1']['input'];
+      readonly signature: CodecTypes['pg/text@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly userId: CodecTypes['pg/text@1']['input'];
+    };
     readonly KnowledgeChunk: {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -371,6 +388,7 @@ export type FieldInputTypes = {
       readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
       readonly sleep: 'bad' | 'regular' | 'good' | null;
       readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
     };
     readonly User: {
@@ -424,6 +442,14 @@ export type StorageColumnTypes = {
       readonly unit: CodecTypes['pg/text@1']['output'] | null;
       readonly value: CodecTypes['pg/float8@1']['output'];
     };
+    readonly insight_cache: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly id: CodecTypes['pg/text@1']['output'];
+      readonly payload: CodecTypes['pg/text@1']['output'];
+      readonly signature: CodecTypes['pg/text@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly userId: CodecTypes['pg/text@1']['output'];
+    };
     readonly knowledge_chunks: {
       readonly content: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -444,6 +470,7 @@ export type StorageColumnTypes = {
       readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
       readonly sleep: 'bad' | 'regular' | 'good' | null;
       readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly userId: CodecTypes['pg/text@1']['output'];
     };
     readonly users: {
@@ -497,6 +524,14 @@ export type StorageColumnInputTypes = {
       readonly unit: CodecTypes['pg/text@1']['input'] | null;
       readonly value: CodecTypes['pg/float8@1']['input'];
     };
+    readonly insight_cache: {
+      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly id: CodecTypes['pg/text@1']['input'];
+      readonly payload: CodecTypes['pg/text@1']['input'];
+      readonly signature: CodecTypes['pg/text@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly userId: CodecTypes['pg/text@1']['input'];
+    };
     readonly knowledge_chunks: {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -517,6 +552,7 @@ export type StorageColumnInputTypes = {
       readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
       readonly sleep: 'bad' | 'regular' | 'good' | null;
       readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly userId: CodecTypes['pg/text@1']['input'];
     };
     readonly users: {
@@ -575,6 +611,16 @@ export namespace Models {
     value: CodecTypes['pg/float8@1']['output'];
     readonly [RelationKeys]?: never;
   };
+  export type public_InsightCache = {
+    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    id: CodecTypes['pg/text@1']['output'];
+    payload: CodecTypes['pg/text@1']['output'];
+    signature: CodecTypes['pg/text@1']['output'];
+    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    userId: CodecTypes['pg/text@1']['output'];
+    user: public_User;
+    readonly [RelationKeys]?: 'user';
+  };
   export type public_KnowledgeChunk = {
     content: CodecTypes['pg/text@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
@@ -596,6 +642,7 @@ export namespace Models {
     painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
     sleep: 'bad' | 'regular' | 'good' | null;
     symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
+    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     userId: CodecTypes['pg/text@1']['output'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
@@ -610,8 +657,10 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     cyclePattern: public_CyclePattern | null;
     healthAssessments: public_HealthAssessment[];
+    insightCache: public_InsightCache | null;
     symptomEntries: public_SymptomEntry[];
-    readonly [RelationKeys]?: 'cyclePattern' | 'healthAssessments' | 'symptomEntries';
+    readonly [RelationKeys]?:
+      'cyclePattern' | 'healthAssessments' | 'insightCache' | 'symptomEntries';
   };
 }
 
@@ -620,6 +669,7 @@ export declare const models: {
     CyclePattern: Models.public_CyclePattern;
     HealthAssessment: Models.public_HealthAssessment;
     HealthStatistic: Models.public_HealthStatistic;
+    InsightCache: Models.public_InsightCache;
     KnowledgeChunk: Models.public_KnowledgeChunk;
     SymptomEntry: Models.public_SymptomEntry;
     User: Models.public_User;
@@ -902,6 +952,64 @@ type ContractBase = Omit<
               indexes: readonly [];
               foreignKeys: readonly [];
             };
+            readonly insight_cache: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly payload: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly signature: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly userId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['userId'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'insight_cache';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'users';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly knowledge_chunks: {
               columns: {
                 readonly content: {
@@ -1016,6 +1124,12 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                   readonly many: { readonly elementNullable: false };
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly many: false;
                 };
                 readonly userId: {
                   readonly dataType: 'pg/text';
@@ -1154,6 +1268,10 @@ type ContractBase = Omit<
     readonly health_statistics: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'HealthStatistic';
+    };
+    readonly insight_cache: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'InsightCache';
     };
     readonly knowledge_chunks: {
       readonly namespace: 'public' & NamespaceId;
@@ -1404,6 +1522,63 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly InsightCache: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly payload: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly signature: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'insight_cache';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly payload: { readonly column: 'payload' };
+                readonly signature: { readonly column: 'signature' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly userId: { readonly column: 'userId' };
+              };
+            };
+          };
           readonly KnowledgeChunk: {
             readonly fields: {
               readonly content: {
@@ -1506,6 +1681,13 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
                 readonly many: { readonly elementNullable: false };
               };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
               readonly userId: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1536,6 +1718,7 @@ type ContractBase = Omit<
                 readonly painIntensity: { readonly column: 'painIntensity' };
                 readonly sleep: { readonly column: 'sleep' };
                 readonly symptoms: { readonly column: 'symptoms' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
                 readonly userId: { readonly column: 'userId' };
               };
             };
@@ -1596,6 +1779,18 @@ type ContractBase = Omit<
                   readonly model: 'HealthAssessment';
                 };
                 readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
+                };
+              };
+              readonly insightCache: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'InsightCache';
+                };
+                readonly cardinality: '1:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['userId'];
@@ -1801,6 +1996,23 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'insight_cache';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'insight_cache';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'uuidv4'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'knowledge_chunks';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -1811,6 +2023,15 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'symptom_entries';
             readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'symptom_entries';
+            readonly field: 'updatedAt';
             readonly namespace: 'public';
           };
         },

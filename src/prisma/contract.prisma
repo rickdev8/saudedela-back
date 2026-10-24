@@ -83,7 +83,7 @@ model InsightCache {
 
   createdAt DateTime @default(now())
   updatedAt temporal.updatedAtString()
-
+  @@rls
   @@map("insight_cache")
 }
 
@@ -138,7 +138,7 @@ model CyclePattern {
 
   createdAt DateTime @default(now())
   updatedAt temporal.updatedAtString()
-
+  @@rls
   @@map("cycle_patterns")
 }
 

@@ -16,6 +16,10 @@
       "model": "HealthStatistic",
       "namespace": "public"
     },
+    "insight_cache": {
+      "model": "InsightCache",
+      "namespace": "public"
+    },
     "knowledge_chunks": {
       "model": "KnowledgeChunk",
       "namespace": "public"
@@ -541,6 +545,94 @@
               "table": "health_statistics"
             }
           },
+          "InsightCache": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "payload": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "signature": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "payload": {
+                  "column": "payload"
+                },
+                "signature": {
+                  "column": "signature"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "userId": {
+                  "column": "userId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "insight_cache"
+            }
+          },
           "KnowledgeChunk": {
             "fields": {
               "content": {
@@ -724,6 +816,13 @@
                   "kind": "scalar"
                 }
               },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
               "userId": {
                 "nullable": false,
                 "type": {
@@ -781,6 +880,9 @@
                 },
                 "symptoms": {
                   "column": "symptoms"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
                 },
                 "userId": {
                   "column": "userId"
@@ -871,6 +973,22 @@
                 },
                 "to": {
                   "model": "HealthAssessment",
+                  "namespace": "public"
+                }
+              },
+              "insightCache": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "InsightCache",
                   "namespace": "public"
                 }
               },
@@ -1296,6 +1414,81 @@
               },
               "uniques": []
             },
+            "insight_cache": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "payload": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "signature": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "unique": [
+                      "userId"
+                    ]
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "userId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "insight_cache"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "users"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "userId"
+                  ]
+                }
+              ]
+            },
             "knowledge_chunks": {
               "columns": {
                 "content": {
@@ -1458,6 +1651,11 @@
                   },
                   "nullable": false
                 },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false
+                },
                 "userId": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -1612,7 +1810,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6f42b31d8a5f45a3dc28d7442e931f8035dba6cf4a5d6c76d7646ab70023d5b6",
+    "storageHash": "27afc810017204a3b095f4185b4a94a6945393c83833d7d9270f161894aebe3e",
     "types": {
       "Embedding1536": {
         "codecId": "pg/vector@1",
@@ -1625,7 +1823,7 @@
     }
   },
   "execution": {
-    "executionHash": "303a4f69e1fceb9e9260bd4fcfa0308f4cdd1a8b7560659c0455e0b5846e434b",
+    "executionHash": "69e699e1a3daf44c75b2a8f662c347de7245f07a3f899077257334c0ea5c99f1",
     "mutations": {
       "defaults": [
         {
@@ -1682,6 +1880,32 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "insight_cache",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "insight_cache",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "knowledge_chunks",
             "field": "id",
             "namespace": "public"
@@ -1695,6 +1919,21 @@
           "ref": {
             "entry": "symptom_entries",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "symptom_entries",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },
