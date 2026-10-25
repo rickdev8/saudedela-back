@@ -176,7 +176,7 @@ Starting at this release, a Multi-Table Inheritance (MTI) variant model stores a
 
 ```prisma
 model Task {
-  id   String @id @default(uuid())
+  id   String @id @onCreate(uuid())
   type String
   // …
   @@discriminator(type)
@@ -265,7 +265,7 @@ Reference another contract space's model using the `<space>:<namespace>.<Model>`
 // Before (no cross-space FK)
 namespace public {
   model Profile {
-    id       String @id @default(uuid())
+    id       String @id @onCreate(uuid())
     username String
     @@map("profile")
   }
@@ -278,7 +278,7 @@ types {
 
 namespace public {
   model Profile {
-    id       String @id @default(uuid())
+    id       String @id @onCreate(uuid())
     username String
     userId   Uuid   @unique
     user     supabase:auth.AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)

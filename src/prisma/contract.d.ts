@@ -3,13 +3,17 @@
 // To regenerate, run: prisma contract emit
 import type {
   CodecTypes as PgVectorTypes,
-  Vector,
+  ParameterizedOutputTypesForTypeParams as PgVectorParameterizedOutputTypes,
 } from '@prisma/orm-extension-pgvector/codec-types';
 import type { QueryOperationTypes as PgVectorQueryOperationTypes } from '@prisma/orm-extension-pgvector/operation-types';
-import type { CodecTypes as PgTypes } from '@prisma/orm-postgres/target/codec-types';
+import type {
+  CodecTypes as PgTypes,
+  ParameterizedOutputTypesForTypeParams as PgParameterizedOutputTypes,
+} from '@prisma/orm-postgres/target/codec-types';
 import type { QueryOperationTypes as PgTargetQueryOps } from '@prisma/orm-postgres/target/operation-types';
 
 import type {
+  ColumnTypesFromStorage,
   ContractWithTypeMaps,
   RelationKeys,
   TypeMaps as TypeMapsType,
@@ -17,15 +21,16 @@ import type {
 import type {
   Contract as ContractType,
   ExecutionHashBase,
+  FieldTypesFromDomain,
   NamespaceId,
   ProfileHashBase,
   StorageHashBase,
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'27afc810017204a3b095f4185b4a94a6945393c83833d7d9270f161894aebe3e'>;
+  StorageHashBase<'010e3922606f4eadc6d1cf2e622146c92c60594930371679a6b7be92f2e9a97f'>;
 export type ExecutionHash =
-  ExecutionHashBase<'69e699e1a3daf44c75b2a8f662c347de7245f07a3f899077257334c0ea5c99f1'>;
+  ExecutionHashBase<'2b43979dfc49f6e8ebc02c46dfcbd6535798f6dc96cd74f93be853620f522c35'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -237,424 +242,200 @@ type DefaultLiteralValue<CodecId extends string, Encoded> = CodecId extends keyo
     ? Encoded
     : CodecTypes[CodecId]['json']
   : Encoded;
+type ParameterizedOutputTypeFunctions =
+  PgParameterizedOutputTypes | PgVectorParameterizedOutputTypes;
 
-export type FieldOutputTypes = {
+type FieldTypeOverrides = {
   readonly public: {
-    readonly CyclePattern: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
-      readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
-      readonly durationDays: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
-      readonly regularity: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly HealthAssessment: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly digestionSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly energyLevel: 'low' | 'normal' | 'high' | null;
-      readonly gynecologicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly medications: CodecTypes['pg/text@1']['output'] | null;
-      readonly moodChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly otherNotes: CodecTypes['pg/text@1']['output'] | null;
-      readonly painLevel: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly physicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly recentBodyChanges: CodecTypes['pg/text@1']['output'] | null;
-      readonly skinHairChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly sleepQuality: 'bad' | 'regular' | 'good' | null;
-      readonly urinarySymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly HealthStatistic: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly indicator: CodecTypes['pg/text@1']['output'];
-      readonly label: CodecTypes['pg/text@1']['output'];
-      readonly referenceDate: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
-      readonly source: CodecTypes['pg/text@1']['output'];
-      readonly unit: CodecTypes['pg/text@1']['output'] | null;
-      readonly value: CodecTypes['pg/float8@1']['output'];
-    };
-    readonly InsightCache: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly payload: CodecTypes['pg/text@1']['output'];
-      readonly signature: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly KnowledgeChunk: {
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly embedding: Vector<1536>;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly source: CodecTypes['pg/text@1']['output'];
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly url: CodecTypes['pg/text@1']['output'] | null;
-    };
-    readonly SymptomEntry: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly date: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly energy: 'low' | 'normal' | 'high' | null;
-      readonly flow: 'none' | 'light' | 'medium' | 'heavy' | null;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly mood: CodecTypes['pg/text@1']['output'] | null;
-      readonly notes: CodecTypes['pg/text@1']['output'] | null;
-      readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly sleep: 'bad' | 'regular' | 'good' | null;
-      readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly User: {
-      readonly age: CodecTypes['pg/int4@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly email: CodecTypes['pg/text@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly name: CodecTypes['pg/text@1']['output'];
-      readonly password: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    readonly models: {
+      readonly HealthAssessment: {
+        readonly energyLevel: {
+          readonly output: 'low' | 'normal' | 'high';
+          readonly input: 'low' | 'normal' | 'high';
+        };
+        readonly painLevel: {
+          readonly output: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+          readonly input: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+        };
+        readonly sleepQuality: {
+          readonly output: 'bad' | 'regular' | 'good';
+          readonly input: 'bad' | 'regular' | 'good';
+        };
+      };
+      readonly SymptomEntry: {
+        readonly energy: {
+          readonly output: 'low' | 'normal' | 'high';
+          readonly input: 'low' | 'normal' | 'high';
+        };
+        readonly flow: {
+          readonly output: 'none' | 'light' | 'medium' | 'heavy';
+          readonly input: 'none' | 'light' | 'medium' | 'heavy';
+        };
+        readonly painIntensity: {
+          readonly output: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+          readonly input: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+        };
+        readonly sleep: {
+          readonly output: 'bad' | 'regular' | 'good';
+          readonly input: 'bad' | 'regular' | 'good';
+        };
+      };
     };
   };
 };
-export type FieldInputTypes = {
+export type FieldOutputTypes = FieldTypesFromDomain<
+  ContractBase['domain']['namespaces'],
+  CodecTypes,
+  ParameterizedOutputTypeFunctions,
+  FieldTypeOverrides,
+  'output'
+>;
+export type FieldInputTypes = FieldTypesFromDomain<
+  ContractBase['domain']['namespaces'],
+  CodecTypes,
+  ParameterizedOutputTypeFunctions,
+  FieldTypeOverrides,
+  'input'
+>;
+type ColumnTypeOverrides = {
   readonly public: {
-    readonly CyclePattern: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly cycleLengthDays: CodecTypes['pg/int4@1']['input'] | null;
-      readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['input']>;
-      readonly durationDays: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['input'] | null;
-      readonly regularity: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly HealthAssessment: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly digestionSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly energyLevel: 'low' | 'normal' | 'high' | null;
-      readonly gynecologicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly medications: CodecTypes['pg/text@1']['input'] | null;
-      readonly moodChanges: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly otherNotes: CodecTypes['pg/text@1']['input'] | null;
-      readonly painLevel: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly physicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly recentBodyChanges: CodecTypes['pg/text@1']['input'] | null;
-      readonly skinHairChanges: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly sleepQuality: 'bad' | 'regular' | 'good' | null;
-      readonly urinarySymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly HealthStatistic: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly indicator: CodecTypes['pg/text@1']['input'];
-      readonly label: CodecTypes['pg/text@1']['input'];
-      readonly referenceDate: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
-      readonly source: CodecTypes['pg/text@1']['input'];
-      readonly unit: CodecTypes['pg/text@1']['input'] | null;
-      readonly value: CodecTypes['pg/float8@1']['input'];
-    };
-    readonly InsightCache: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly payload: CodecTypes['pg/text@1']['input'];
-      readonly signature: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly KnowledgeChunk: {
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly embedding: CodecTypes['pg/vector@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly source: CodecTypes['pg/text@1']['input'];
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly url: CodecTypes['pg/text@1']['input'] | null;
-    };
-    readonly SymptomEntry: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly date: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly energy: 'low' | 'normal' | 'high' | null;
-      readonly flow: 'none' | 'light' | 'medium' | 'heavy' | null;
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly mood: CodecTypes['pg/text@1']['input'] | null;
-      readonly notes: CodecTypes['pg/text@1']['input'] | null;
-      readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly sleep: 'bad' | 'regular' | 'good' | null;
-      readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly User: {
-      readonly age: CodecTypes['pg/int4@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly email: CodecTypes['pg/text@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly name: CodecTypes['pg/text@1']['input'];
-      readonly password: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-  };
-};
-export type StorageColumnTypes = {
-  readonly public: {
-    readonly cycle_patterns: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
-      readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
-      readonly durationDays: CodecTypes['pg/int4@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
-      readonly regularity: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
     readonly health_assessments: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly digestionSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly energyLevel: 'low' | 'normal' | 'high' | null;
-      readonly gynecologicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly medications: CodecTypes['pg/text@1']['output'] | null;
-      readonly moodChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly otherNotes: CodecTypes['pg/text@1']['output'] | null;
-      readonly painLevel: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly physicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly recentBodyChanges: CodecTypes['pg/text@1']['output'] | null;
-      readonly skinHairChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly sleepQuality: 'bad' | 'regular' | 'good' | null;
-      readonly urinarySymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly health_statistics: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly indicator: CodecTypes['pg/text@1']['output'];
-      readonly label: CodecTypes['pg/text@1']['output'];
-      readonly referenceDate: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
-      readonly source: CodecTypes['pg/text@1']['output'];
-      readonly unit: CodecTypes['pg/text@1']['output'] | null;
-      readonly value: CodecTypes['pg/float8@1']['output'];
-    };
-    readonly insight_cache: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly payload: CodecTypes['pg/text@1']['output'];
-      readonly signature: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly knowledge_chunks: {
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly embedding: Vector<1536>;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly source: CodecTypes['pg/text@1']['output'];
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly url: CodecTypes['pg/text@1']['output'] | null;
+      readonly energyLevel: {
+        readonly output: 'low' | 'normal' | 'high';
+        readonly input: 'low' | 'normal' | 'high';
+      };
+      readonly painLevel: {
+        readonly output: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+        readonly input: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+      };
+      readonly sleepQuality: {
+        readonly output: 'bad' | 'regular' | 'good';
+        readonly input: 'bad' | 'regular' | 'good';
+      };
     };
     readonly symptom_entries: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly date: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly energy: 'low' | 'normal' | 'high' | null;
-      readonly flow: 'none' | 'light' | 'medium' | 'heavy' | null;
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly mood: CodecTypes['pg/text@1']['output'] | null;
-      readonly notes: CodecTypes['pg/text@1']['output'] | null;
-      readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly sleep: 'bad' | 'regular' | 'good' | null;
-      readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-      readonly userId: CodecTypes['pg/text@1']['output'];
-    };
-    readonly users: {
-      readonly age: CodecTypes['pg/int4@1']['output'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly email: CodecTypes['pg/text@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly name: CodecTypes['pg/text@1']['output'];
-      readonly password: CodecTypes['pg/text@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly energy: {
+        readonly output: 'low' | 'normal' | 'high';
+        readonly input: 'low' | 'normal' | 'high';
+      };
+      readonly flow: {
+        readonly output: 'none' | 'light' | 'medium' | 'heavy';
+        readonly input: 'none' | 'light' | 'medium' | 'heavy';
+      };
+      readonly painIntensity: {
+        readonly output: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+        readonly input: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong';
+      };
+      readonly sleep: {
+        readonly output: 'bad' | 'regular' | 'good';
+        readonly input: 'bad' | 'regular' | 'good';
+      };
     };
   };
 };
-export type StorageColumnInputTypes = {
-  readonly public: {
-    readonly cycle_patterns: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly cycleLengthDays: CodecTypes['pg/int4@1']['input'] | null;
-      readonly daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['input']>;
-      readonly durationDays: CodecTypes['pg/int4@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly lastPeriodStart: CodecTypes['pg/date-temporal@1']['input'] | null;
-      readonly regularity: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly health_assessments: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly digestionSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly energyLevel: 'low' | 'normal' | 'high' | null;
-      readonly gynecologicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly medications: CodecTypes['pg/text@1']['input'] | null;
-      readonly moodChanges: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly otherNotes: CodecTypes['pg/text@1']['input'] | null;
-      readonly painLevel: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly physicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly recentBodyChanges: CodecTypes['pg/text@1']['input'] | null;
-      readonly skinHairChanges: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly sleepQuality: 'bad' | 'regular' | 'good' | null;
-      readonly urinarySymptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly health_statistics: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly indicator: CodecTypes['pg/text@1']['input'];
-      readonly label: CodecTypes['pg/text@1']['input'];
-      readonly referenceDate: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
-      readonly source: CodecTypes['pg/text@1']['input'];
-      readonly unit: CodecTypes['pg/text@1']['input'] | null;
-      readonly value: CodecTypes['pg/float8@1']['input'];
-    };
-    readonly insight_cache: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly payload: CodecTypes['pg/text@1']['input'];
-      readonly signature: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly knowledge_chunks: {
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly embedding: CodecTypes['pg/vector@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly source: CodecTypes['pg/text@1']['input'];
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly url: CodecTypes['pg/text@1']['input'] | null;
-    };
-    readonly symptom_entries: {
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly date: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly energy: 'low' | 'normal' | 'high' | null;
-      readonly flow: 'none' | 'light' | 'medium' | 'heavy' | null;
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly mood: CodecTypes['pg/text@1']['input'] | null;
-      readonly notes: CodecTypes['pg/text@1']['input'] | null;
-      readonly painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-      readonly sleep: 'bad' | 'regular' | 'good' | null;
-      readonly symptoms: ReadonlyArray<CodecTypes['pg/text@1']['input']>;
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-      readonly userId: CodecTypes['pg/text@1']['input'];
-    };
-    readonly users: {
-      readonly age: CodecTypes['pg/int4@1']['input'] | null;
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly email: CodecTypes['pg/text@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly name: CodecTypes['pg/text@1']['input'];
-      readonly password: CodecTypes['pg/text@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
-    };
-  };
-};
+export type StorageColumnTypes = ColumnTypesFromStorage<
+  ContractBase['storage'],
+  CodecTypes,
+  ParameterizedOutputTypeFunctions,
+  ColumnTypeOverrides,
+  'output'
+>;
+export type StorageColumnInputTypes = ColumnTypesFromStorage<
+  ContractBase['storage'],
+  CodecTypes,
+  ParameterizedOutputTypeFunctions,
+  ColumnTypeOverrides,
+  'input'
+>;
 
 export namespace Models {
   export type public_CyclePattern = {
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    cycleLengthDays: CodecTypes['pg/int4@1']['output'] | null;
-    daysSelected: ReadonlyArray<CodecTypes['pg/int4@1']['output']>;
-    durationDays: CodecTypes['pg/int4@1']['output'];
-    id: CodecTypes['pg/text@1']['output'];
-    lastPeriodStart: CodecTypes['pg/date-temporal@1']['output'] | null;
-    regularity: CodecTypes['pg/text@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    userId: CodecTypes['pg/text@1']['output'];
+    createdAt: FieldOutputTypes['public']['CyclePattern']['createdAt'];
+    cycleLengthDays: FieldOutputTypes['public']['CyclePattern']['cycleLengthDays'];
+    daysSelected: FieldOutputTypes['public']['CyclePattern']['daysSelected'];
+    durationDays: FieldOutputTypes['public']['CyclePattern']['durationDays'];
+    id: FieldOutputTypes['public']['CyclePattern']['id'];
+    lastPeriodStart: FieldOutputTypes['public']['CyclePattern']['lastPeriodStart'];
+    regularity: FieldOutputTypes['public']['CyclePattern']['regularity'];
+    updatedAt: FieldOutputTypes['public']['CyclePattern']['updatedAt'];
+    userId: FieldOutputTypes['public']['CyclePattern']['userId'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
   export type public_HealthAssessment = {
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    digestionSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    energyLevel: 'low' | 'normal' | 'high' | null;
-    gynecologicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    id: CodecTypes['pg/text@1']['output'];
-    medications: CodecTypes['pg/text@1']['output'] | null;
-    moodChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    otherNotes: CodecTypes['pg/text@1']['output'] | null;
-    painLevel: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-    physicalSymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    recentBodyChanges: CodecTypes['pg/text@1']['output'] | null;
-    skinHairChanges: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    sleepQuality: 'bad' | 'regular' | 'good' | null;
-    urinarySymptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    userId: CodecTypes['pg/text@1']['output'];
+    createdAt: FieldOutputTypes['public']['HealthAssessment']['createdAt'];
+    digestionSymptoms: FieldOutputTypes['public']['HealthAssessment']['digestionSymptoms'];
+    energyLevel: FieldOutputTypes['public']['HealthAssessment']['energyLevel'];
+    gynecologicalSymptoms: FieldOutputTypes['public']['HealthAssessment']['gynecologicalSymptoms'];
+    id: FieldOutputTypes['public']['HealthAssessment']['id'];
+    medications: FieldOutputTypes['public']['HealthAssessment']['medications'];
+    moodChanges: FieldOutputTypes['public']['HealthAssessment']['moodChanges'];
+    otherNotes: FieldOutputTypes['public']['HealthAssessment']['otherNotes'];
+    painLevel: FieldOutputTypes['public']['HealthAssessment']['painLevel'];
+    physicalSymptoms: FieldOutputTypes['public']['HealthAssessment']['physicalSymptoms'];
+    recentBodyChanges: FieldOutputTypes['public']['HealthAssessment']['recentBodyChanges'];
+    skinHairChanges: FieldOutputTypes['public']['HealthAssessment']['skinHairChanges'];
+    sleepQuality: FieldOutputTypes['public']['HealthAssessment']['sleepQuality'];
+    urinarySymptoms: FieldOutputTypes['public']['HealthAssessment']['urinarySymptoms'];
+    userId: FieldOutputTypes['public']['HealthAssessment']['userId'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
   export type public_HealthStatistic = {
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    id: CodecTypes['pg/text@1']['output'];
-    indicator: CodecTypes['pg/text@1']['output'];
-    label: CodecTypes['pg/text@1']['output'];
-    referenceDate: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
-    source: CodecTypes['pg/text@1']['output'];
-    unit: CodecTypes['pg/text@1']['output'] | null;
-    value: CodecTypes['pg/float8@1']['output'];
+    createdAt: FieldOutputTypes['public']['HealthStatistic']['createdAt'];
+    id: FieldOutputTypes['public']['HealthStatistic']['id'];
+    indicator: FieldOutputTypes['public']['HealthStatistic']['indicator'];
+    label: FieldOutputTypes['public']['HealthStatistic']['label'];
+    referenceDate: FieldOutputTypes['public']['HealthStatistic']['referenceDate'];
+    source: FieldOutputTypes['public']['HealthStatistic']['source'];
+    unit: FieldOutputTypes['public']['HealthStatistic']['unit'];
+    value: FieldOutputTypes['public']['HealthStatistic']['value'];
     readonly [RelationKeys]?: never;
   };
   export type public_InsightCache = {
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    id: CodecTypes['pg/text@1']['output'];
-    payload: CodecTypes['pg/text@1']['output'];
-    signature: CodecTypes['pg/text@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    userId: CodecTypes['pg/text@1']['output'];
+    createdAt: FieldOutputTypes['public']['InsightCache']['createdAt'];
+    id: FieldOutputTypes['public']['InsightCache']['id'];
+    payload: FieldOutputTypes['public']['InsightCache']['payload'];
+    signature: FieldOutputTypes['public']['InsightCache']['signature'];
+    updatedAt: FieldOutputTypes['public']['InsightCache']['updatedAt'];
+    userId: FieldOutputTypes['public']['InsightCache']['userId'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
   export type public_KnowledgeChunk = {
-    content: CodecTypes['pg/text@1']['output'];
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    embedding: Vector<1536>;
-    id: CodecTypes['pg/text@1']['output'];
-    source: CodecTypes['pg/text@1']['output'];
-    title: CodecTypes['pg/text@1']['output'];
-    url: CodecTypes['pg/text@1']['output'] | null;
+    content: FieldOutputTypes['public']['KnowledgeChunk']['content'];
+    createdAt: FieldOutputTypes['public']['KnowledgeChunk']['createdAt'];
+    embedding: FieldOutputTypes['public']['KnowledgeChunk']['embedding'];
+    id: FieldOutputTypes['public']['KnowledgeChunk']['id'];
+    source: FieldOutputTypes['public']['KnowledgeChunk']['source'];
+    title: FieldOutputTypes['public']['KnowledgeChunk']['title'];
+    url: FieldOutputTypes['public']['KnowledgeChunk']['url'];
     readonly [RelationKeys]?: never;
   };
   export type public_SymptomEntry = {
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    date: CodecTypes['pg/timestamptz-string@1']['output'];
-    energy: 'low' | 'normal' | 'high' | null;
-    flow: 'none' | 'light' | 'medium' | 'heavy' | null;
-    id: CodecTypes['pg/text@1']['output'];
-    mood: CodecTypes['pg/text@1']['output'] | null;
-    notes: CodecTypes['pg/text@1']['output'] | null;
-    painIntensity: 'none' | 'light' | 'moderate' | 'strong' | 'very_strong' | null;
-    sleep: 'bad' | 'regular' | 'good' | null;
-    symptoms: ReadonlyArray<CodecTypes['pg/text@1']['output']>;
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
-    userId: CodecTypes['pg/text@1']['output'];
+    createdAt: FieldOutputTypes['public']['SymptomEntry']['createdAt'];
+    date: FieldOutputTypes['public']['SymptomEntry']['date'];
+    energy: FieldOutputTypes['public']['SymptomEntry']['energy'];
+    flow: FieldOutputTypes['public']['SymptomEntry']['flow'];
+    id: FieldOutputTypes['public']['SymptomEntry']['id'];
+    mood: FieldOutputTypes['public']['SymptomEntry']['mood'];
+    notes: FieldOutputTypes['public']['SymptomEntry']['notes'];
+    painIntensity: FieldOutputTypes['public']['SymptomEntry']['painIntensity'];
+    sleep: FieldOutputTypes['public']['SymptomEntry']['sleep'];
+    symptoms: FieldOutputTypes['public']['SymptomEntry']['symptoms'];
+    updatedAt: FieldOutputTypes['public']['SymptomEntry']['updatedAt'];
+    userId: FieldOutputTypes['public']['SymptomEntry']['userId'];
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
   export type public_User = {
-    age: CodecTypes['pg/int4@1']['output'] | null;
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    email: CodecTypes['pg/text@1']['output'];
-    id: CodecTypes['pg/text@1']['output'];
-    name: CodecTypes['pg/text@1']['output'];
-    password: CodecTypes['pg/text@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    age: FieldOutputTypes['public']['User']['age'];
+    createdAt: FieldOutputTypes['public']['User']['createdAt'];
+    email: FieldOutputTypes['public']['User']['email'];
+    id: FieldOutputTypes['public']['User']['id'];
+    name: FieldOutputTypes['public']['User']['name'];
+    password: FieldOutputTypes['public']['User']['password'];
+    updatedAt: FieldOutputTypes['public']['User']['updatedAt'];
     cyclePattern: public_CyclePattern | null;
     healthAssessments: public_HealthAssessment[];
     insightCache: public_InsightCache | null;
@@ -1029,7 +810,7 @@ type ContractBase = Omit<
                   readonly dataType: 'pgvector/vector';
                   readonly codecId: 'pg/vector@1';
                   readonly nullable: false;
-                  readonly typeRef: 'Embedding1536';
+                  readonly typeParams: { readonly length: 1536 };
                   readonly many: false;
                 };
                 readonly id: {
@@ -1240,14 +1021,6 @@ type ContractBase = Omit<
             };
           };
         };
-      };
-    };
-    readonly types: {
-      readonly Embedding1536: {
-        readonly kind: 'codec-instance';
-        readonly codecId: 'pg/vector@1';
-        readonly dataType: 'pgvector/vector';
-        readonly typeParams: { readonly length: 1536 };
       };
     };
     readonly storageHash: StorageHash;
@@ -1930,13 +1703,11 @@ type ContractBase = Omit<
             readonly named: 'CodecTypes';
             readonly package: '@internal/extension-pgvector/codec-types';
           };
-          readonly typeImports: readonly [
-            {
-              readonly alias: 'Vector';
-              readonly named: 'Vector';
-              readonly package: '@internal/extension-pgvector/codec-types';
-            },
-          ];
+          readonly parameterizedOutputTypes: {
+            readonly alias: 'PgVectorParameterizedOutputTypes';
+            readonly named: 'ParameterizedOutputTypesForTypeParams';
+            readonly package: '@internal/extension-pgvector/codec-types';
+          };
         };
         readonly operationTypes: {
           readonly import: {
@@ -1969,8 +1740,8 @@ type ContractBase = Omit<
           };
         },
         {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onCreate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'cycle_patterns';
             readonly field: 'updatedAt';
@@ -2002,8 +1773,8 @@ type ContractBase = Omit<
           };
         },
         {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onCreate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'insight_cache';
             readonly field: 'updatedAt';
@@ -2027,8 +1798,8 @@ type ContractBase = Omit<
           };
         },
         {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onCreate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'symptom_entries';
             readonly field: 'updatedAt';
@@ -2044,8 +1815,8 @@ type ContractBase = Omit<
           };
         },
         {
-          readonly onCreate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
-          readonly onUpdate: { readonly id: 'timestampNow'; readonly kind: 'generator' };
+          readonly onCreate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestamptzStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'users';
             readonly field: 'updatedAt';

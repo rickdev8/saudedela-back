@@ -106,7 +106,7 @@ changes:
 
 ## `execution-ref-entry-field`
 
-A contract with generated defaults (`temporal.createdAt()`, `temporal.updatedAt()`, `@default(uuid())` and the like) carries them under `execution.mutations.defaults`. Each entry's `ref` changes keys; the values do not:
+A contract with generated defaults (`temporal.createdAt()`, `temporal.updatedAt()`, `@onCreate(uuid())` and the like) carries them under `execution.mutations.defaults`. Each entry's `ref` changes keys; the values do not:
 
 ```json
 // before

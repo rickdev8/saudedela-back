@@ -7,6 +7,7 @@ if (!(globalThis as any).Temporal) {
 
 import pgvector from '@prisma/orm-extension-pgvector/runtime';
 import postgres from '@prisma/orm-postgres/runtime';
+import { contractFromJson } from '@prisma/orm-postgres/static';
 import type { Contract } from './contract.d';
 import contractJson from './contract.json' with { type: 'json' };
 
@@ -15,8 +16,10 @@ if (!url) {
   throw new Error('DIRECT_URL não está definida nas variáveis de ambiente');
 }
 
+const contract = contractFromJson<Contract>(contractJson);
+
 export const db = postgres<Contract>({
-  contractJson,
+  contract,
   url,
   extensions: [pgvector],
 });

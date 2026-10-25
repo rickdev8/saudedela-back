@@ -213,7 +213,7 @@ changes:
       storage-resolution hook must drop the hook; PSL schemas in extension fixtures relying on
       `String @default(uuid()/cuid()/nanoid()/ulid())` producing `character(N)` columns must
       either accept the target String storage (postgres: `pg/text@1` / `text`) or author the
-      char storage explicitly in the type position (`Char(36) @default(uuid())`, …), then
+      char storage explicitly in the type position (`Char(36) @onCreate(uuid())`, …), then
       re-emit.
     detection:
       glob: "**/*.{ts,mts,cts,prisma}"

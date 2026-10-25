@@ -1044,6 +1044,18 @@
     "namespaces": {
       "public": {
         "entries": {
+          "rls": {
+            "cycle_patterns": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "cycle_patterns"
+            },
+            "insight_cache": {
+              "kind": "rls",
+              "namespaceId": "public",
+              "tableName": "insight_cache"
+            }
+          },
           "table": {
             "cycle_patterns": {
               "checks": [
@@ -1509,7 +1521,9 @@
                   "codecId": "pg/vector@1",
                   "dataType": "pgvector/vector",
                   "nullable": false,
-                  "typeRef": "Embedding1536"
+                  "typeParams": {
+                    "length": 1536
+                  }
                 },
                 "id": {
                   "codecId": "pg/text@1",
@@ -1810,20 +1824,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "27afc810017204a3b095f4185b4a94a6945393c83833d7d9270f161894aebe3e",
-    "types": {
-      "Embedding1536": {
-        "codecId": "pg/vector@1",
-        "dataType": "pgvector/vector",
-        "kind": "codec-instance",
-        "typeParams": {
-          "length": 1536
-        }
-      }
-    }
+    "storageHash": "010e3922606f4eadc6d1cf2e622146c92c60594930371679a6b7be92f2e9a97f"
   },
   "execution": {
-    "executionHash": "69e699e1a3daf44c75b2a8f662c347de7245f07a3f899077257334c0ea5c99f1",
+    "executionHash": "2b43979dfc49f6e8ebc02c46dfcbd6535798f6dc96cd74f93be853620f522c35",
     "mutations": {
       "defaults": [
         {
@@ -1839,11 +1843,11 @@
         },
         {
           "onCreate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "onUpdate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "ref": {
@@ -1887,11 +1891,11 @@
         },
         {
           "onCreate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "onUpdate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "ref": {
@@ -1924,11 +1928,11 @@
         },
         {
           "onCreate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "onUpdate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "ref": {
@@ -1950,11 +1954,11 @@
         },
         {
           "onCreate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "onUpdate": {
-            "id": "timestampNow",
+            "id": "timestamptzStringNow",
             "kind": "generator"
           },
           "ref": {
@@ -2012,13 +2016,11 @@
             "named": "CodecTypes",
             "package": "@internal/extension-pgvector/codec-types"
           },
-          "typeImports": [
-            {
-              "alias": "Vector",
-              "named": "Vector",
-              "package": "@internal/extension-pgvector/codec-types"
-            }
-          ]
+          "parameterizedOutputTypes": {
+            "alias": "PgVectorParameterizedOutputTypes",
+            "named": "ParameterizedOutputTypesForTypeParams",
+            "package": "@internal/extension-pgvector/codec-types"
+          }
         },
         "operationTypes": {
           "import": {
