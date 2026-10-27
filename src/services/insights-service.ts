@@ -1,7 +1,8 @@
 import { db, runtime } from "../prisma/db"
 import { generateEmbedding } from "../lib/embedding"
-import { askLLM } from "../lib/llm"
+
 import { dedupeSources } from "../lib/dedupe-source"
+import { askLLM } from "../lib/llm"
 
 const LOOKBACK_DAYS = 90
 const HIGH_PAIN_THRESHOLD = 3
@@ -282,19 +283,24 @@ export async function getInsight(userId: string) {
     
     Não mencione nomes de doenças complexas (ex: endometriose), foque-se apenas no sintoma anotado e no cuidado básico.`
 
-    const answer = await askLLM(
+    const { answer, sources: usedContents } = await askLLM(
         systemNote + "\n\nContexto dos sintomas:\n" + question,
         relevantChunks.map((c: any) => c.content)
-    )
-
-    const result = {
+      )
+      
+      // Só os chunks que o modelo realmente usou na resposta
+      const usedChunks = relevantChunks.filter((c: any) =>
+        usedContents.includes(c.content)
+      )
+      
+      const result = {
         status: "attention" as const,
         headlineParts: primaryFlag.headlineParts,
-        description: typeof answer === "string" ? answer.trim() : answer,
-        sources: dedupeSources(relevantChunks),
-    }
-
-    await saveCachedInsight(userId, signature, result)
+        description: answer.trim(), // já é string, não precisa do typeof
+        sources: dedupeSources(usedChunks),
+      }
+      
+      await saveCachedInsight(userId, signature, result)
 
     return result
 }

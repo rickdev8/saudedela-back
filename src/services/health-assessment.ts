@@ -1,10 +1,13 @@
 import { db, runtime } from "../prisma/db"
 import { generateEmbedding } from "../lib/embedding"
-import { askLLM } from "../lib/llm"
 import { dedupeSources } from "../lib/dedupe-source"
+import { askLLM } from "../lib/llm"
 
 
 const HISTORY_WINDOW = 3
+
+const FALLBACK_DESCRIPTION =
+  "Identificamos uma mudança em relação ao seu histórico. Recomendamos conversar com um profissional de saúde para uma avaliação mais completa."
 
 type HeadlinePart = { text: string; emphasis: boolean }
 
@@ -125,15 +128,37 @@ REGRAS OBRIGATÓRIAS:
 - Termine sugerindo conversar com um profissional, como convite tranquilo, não alarme.
 - Responda em UMA frase curta, no máximo 20 palavras.`
 
-    const answer = await askLLM(systemNote + "\n\n" + question, relevantChunks.map((c: any) => c.content))
+    const { answer, sources: usedContents } = await askLLM(
+      systemNote + "\n\n" + question,
+      relevantChunks.map((c: any) => c.content)
+    )
+
+    // Só os chunks que o modelo realmente usou
+    const usedChunks = relevantChunks.filter((c: any) =>
+      usedContents.includes(c.content)
+    )
+
+    // Se o modelo não usou nenhuma fonte, ele provavelmente respondeu "não encontrei...".
+    // Esse texto não serve num card, então cai no fallback.
+    if (usedChunks.length === 0) {
+      return {
+        assessment: created,
+        analysis: {
+          status: "attention",
+          headlineParts: flags[0].headlineParts,
+          description: FALLBACK_DESCRIPTION,
+          sources: [],
+        },
+      }
+    }
 
     return {
       assessment: created,
       analysis: {
         status: "attention",
         headlineParts: flags[0].headlineParts,
-        description: answer,
-        sources: dedupeSources(relevantChunks),
+        description: answer.trim(),
+        sources: dedupeSources(usedChunks),
       },
     }
   } catch (err) {
@@ -144,7 +169,7 @@ REGRAS OBRIGATÓRIAS:
       analysis: {
         status: "attention",
         headlineParts: flags[0].headlineParts,
-        description: "Identificamos uma mudança em relação ao seu histórico. Recomendamos conversar com um profissional de saúde para uma avaliação mais completa.",
+        description: FALLBACK_DESCRIPTION,
         sources: [],
       },
     }

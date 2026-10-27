@@ -3,6 +3,7 @@ import { askSchema } from "../schemas/assistant-schema"
 import { askAssistant } from "../services/assistant-service"
 
 export async function Ask(req: FastifyRequest, reply: FastifyReply) {
+  console.log(req.body)
   const parsed = askSchema.safeParse(req.body)
 
   if (!parsed.success) {
